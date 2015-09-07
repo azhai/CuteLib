@@ -1,0 +1,569 @@
+{
+    "event": "suiteStart",
+    "suite": "Cutest",
+    "tests": 36
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\CommonTest",
+    "tests": 6
+}{
+    "event": "testStart",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test01StartsWith"
+}{
+    "event": "test",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test01StartsWith",
+    "status": "pass",
+    "time": 0.0019989013671875,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test02EndsWith"
+}{
+    "event": "test",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test02EndsWith",
+    "status": "pass",
+    "time": 0.00062108039855957,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test03ToUTF8"
+}{
+    "event": "test",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test03ToUTF8",
+    "status": "pass",
+    "time": 0.0030100345611572,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test04ExecFunctionArray"
+}{
+    "event": "test",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test04ExecFunctionArray",
+    "status": "pass",
+    "time": 0.00082182884216309,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test05ExecMethodArray"
+}{
+    "event": "test",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test05ExecMethodArray",
+    "status": "pass",
+    "time": 0.0010271072387695,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test06ExecConstructArray"
+}{
+    "event": "test",
+    "suite": "Cutest\\CommonTest",
+    "test": "Cutest\\CommonTest::test06ExecConstructArray",
+    "status": "pass",
+    "time": 0.001755952835083,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Context\\InputTest",
+    "tests": 3
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Context\\InputTest",
+    "test": "Cutest\\Context\\InputTest::test01Get"
+}{
+    "event": "test",
+    "suite": "Cutest\\Context\\InputTest",
+    "test": "Cutest\\Context\\InputTest::test01Get",
+    "status": "pass",
+    "time": 0.0012168884277344,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Context\\InputTest",
+    "test": "Cutest\\Context\\InputTest::test02Post"
+}{
+    "event": "test",
+    "suite": "Cutest\\Context\\InputTest",
+    "test": "Cutest\\Context\\InputTest::test02Post",
+    "status": "pass",
+    "time": 0.00099897384643555,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Context\\InputTest",
+    "test": "Cutest\\Context\\InputTest::test03Request"
+}{
+    "event": "test",
+    "suite": "Cutest\\Context\\InputTest",
+    "test": "Cutest\\Context\\InputTest::test03Request",
+    "status": "pass",
+    "time": 0.00081706047058105,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Context\\RouterTest",
+    "tests": 4
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Context\\RouterTest",
+    "test": "Cutest\\Context\\RouterTest::test01OneLevel"
+}{
+    "event": "test",
+    "suite": "Cutest\\Context\\RouterTest",
+    "test": "Cutest\\Context\\RouterTest::test01OneLevel",
+    "status": "pass",
+    "time": 0.0012218952178955,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Context\\RouterTest",
+    "test": "Cutest\\Context\\RouterTest::test02TwoLevel"
+}{
+    "event": "test",
+    "suite": "Cutest\\Context\\RouterTest",
+    "test": "Cutest\\Context\\RouterTest::test02TwoLevel",
+    "status": "pass",
+    "time": 0.0012950897216797,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Context\\RouterTest",
+    "test": "Cutest\\Context\\RouterTest::test03NotFound"
+}{
+    "event": "test",
+    "suite": "Cutest\\Context\\RouterTest",
+    "test": "Cutest\\Context\\RouterTest::test03NotFound",
+    "status": "pass",
+    "time": 0.00066280364990234,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Context\\RouterTest",
+    "test": "Cutest\\Context\\RouterTest::test04ChildrenOrder"
+}{
+    "event": "test",
+    "suite": "Cutest\\Context\\RouterTest",
+    "test": "Cutest\\Context\\RouterTest::test04ChildrenOrder",
+    "status": "pass",
+    "time": 0.00089001655578613,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "tests": 5
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test01Connect"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test01Connect",
+    "status": "pass",
+    "time": 0.0013718605041504,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test02GetByID"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test02GetByID",
+    "status": "pass",
+    "time": 0.0016040802001953,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test03GetByName"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test03GetByName",
+    "status": "pass",
+    "time": 0.0017170906066895,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test04Find"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test04Find",
+    "status": "pass",
+    "time": 0.0018792152404785,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test05In"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSReadTest",
+    "test": "Cutest\\HandlerSocket\\HSReadTest::test05In",
+    "status": "pass",
+    "time": 0.0018501281738281,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest",
+    "tests": 10
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "tests": 8
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #0 (1, '\u672a\u5206\u7c7b', 'uncategorized', 0)"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #0 (1, '\u672a\u5206\u7c7b', 'uncategorized', 0)",
+    "status": "pass",
+    "time": 0.0082249641418457,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #1 (2, 'PHP\u8bed\u8a00', 'php', 1)"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #1 (2, 'PHP\u8bed\u8a00', 'php', 1)",
+    "status": "pass",
+    "time": 0.0073699951171875,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #2 (3, 'Python', 'python', 0)"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #2 (3, 'Python', 'python', 0)",
+    "status": "pass",
+    "time": 0.007479190826416,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #3 (4, 'MySQL', 'mysql', 1)"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #3 (4, 'MySQL', 'mysql', 1)",
+    "status": "pass",
+    "time": 0.0074851512908936,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #4 (5, 'Nginx', 'nginx', 0)"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #4 (5, 'Nginx', 'nginx', 0)",
+    "status": "pass",
+    "time": 0.0075638294219971,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #5 (6, 'Linux\u7cfb\u7edf', 'linux', 0)"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #5 (6, 'Linux\u7cfb\u7edf', 'linux', 0)",
+    "status": "pass",
+    "time": 0.0075139999389648,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #6 (7, 'Android', 'android', 1)"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #6 (7, 'Android', 'android', 1)",
+    "status": "pass",
+    "time": 0.0075609683990479,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #7 (8, 'iOS', 'ios', 1)"
+}{
+    "event": "test",
+    "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #7 (8, 'iOS', 'ios', 1)",
+    "status": "pass",
+    "time": 0.0074820518493652,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test02Update"
+}{
+    "event": "test",
+    "suite": "",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test02Update",
+    "status": "pass",
+    "time": 0.0077071189880371,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test03Delete"
+}{
+    "event": "test",
+    "suite": "",
+    "test": "Cutest\\HandlerSocket\\HSWriteTest::test03Delete",
+    "status": "pass",
+    "time": 0.02487587928772,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\ImporterTest",
+    "tests": 2
+}{
+    "event": "testStart",
+    "suite": "Cutest\\ImporterTest",
+    "test": "Cutest\\ImporterTest::test01AddNamespace"
+}{
+    "event": "test",
+    "suite": "Cutest\\ImporterTest",
+    "test": "Cutest\\ImporterTest::test01AddNamespace",
+    "status": "pass",
+    "time": 0.001230001449585,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\ImporterTest",
+    "test": "Cutest\\ImporterTest::test02AddClass"
+}{
+    "event": "test",
+    "suite": "Cutest\\ImporterTest",
+    "test": "Cutest\\ImporterTest::test02AddClass",
+    "status": "pass",
+    "time": 0.0012691020965576,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "tests": 3
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test00Truncate"
+}{
+    "event": "test",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test00Truncate",
+    "status": "pass",
+    "time": 0.00088906288146973,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test01Threshold"
+}{
+    "event": "test",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test01Threshold",
+    "status": "pass",
+    "time": 0.015688896179199,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test02SafeLogging"
+}{
+    "event": "test",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test02SafeLogging",
+    "status": "pass",
+    "time": 0.054907083511353,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "tests": 1
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "test": "Cutest\\Utility\\InflectTest::test01Flatten"
+}{
+    "event": "test",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "test": "Cutest\\Utility\\InflectTest::test01Flatten",
+    "status": "pass",
+    "time": 0.0022940635681152,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "tests": 2
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test01TextIncrease"
+}{
+    "event": "test",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test01TextIncrease",
+    "status": "pass",
+    "time": 0.0011758804321289,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test02RedisIncrease"
+}{
+    "event": "test",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test02RedisIncrease",
+    "status": "pass",
+    "time": 0.0011098384857178,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "test",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test02SafeLogging",
+    "status": "pass",
+    "time": 0.080307006835938,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "tests": 1
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "test": "Cutest\\Utility\\InflectTest::test01Flatten"
+}{
+    "event": "test",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "test": "Cutest\\Utility\\InflectTest::test01Flatten",
+    "status": "pass",
+    "time": 0.001882791519165,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "tests": 2
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test01TextIncrease"
+}{
+    "event": "test",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test01TextIncrease",
+    "status": "pass",
+    "time": 0.0011298656463623,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test02RedisIncrease"
+}{
+    "event": "test",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test02RedisIncrease",
+    "status": "pass",
+    "time": 0.0010030269622803,
+    "trace": [],
+    "message": "",
+    "output": ""
+}

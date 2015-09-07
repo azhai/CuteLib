@@ -1,0 +1,11 @@
+.*
+*.bak
+*.pid
+*.zip
+*.tar.gz
+src/GPATH
+src/GTAGS
+src/GRTAGS
+runtime/*
+runtime/*/*.txt
+

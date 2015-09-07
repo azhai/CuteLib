@@ -1,0 +1,12 @@
+[submodule "vendor/Twig"]
+	path = vendor/Twig
+	url = https://github.com/twigphp/Twig.git
+[submodule "vendor/SwiftMailer"]
+	path = vendor/SwiftMailer
+	url = https://github.com/swiftmailer/swiftmailer.git
+[submodule "vendor/Assetic"]
+	path = vendor/Assetic
+	url = https://github.com/kriswallsmith/assetic.git
+[submodule "vendor/Gregwar/Captcha"]
+	path = vendor/Gregwar/Captcha
+	url = https://github.com/Gregwar/Captcha.git

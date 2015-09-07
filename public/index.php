@@ -1,0 +1,15 @@
+<?php
+defined('APP_ROOT') or define('APP_ROOT', dirname(__DIR__));
+defined('SRC_ROOT') or define('SRC_ROOT', APP_ROOT . '/src');
+defined('CUTELIB_FILE') or define('CUTELIB_FILE', SRC_ROOT . '/cutelib.php');
+require_once CUTELIB_FILE;
+//require_once SRC_ROOT . '/bootstrap.php';
+
+$app = app(APP_ROOT . '/protected/settings.php');
+$app->route('/', function() {
+    echo "Hello World!\n";
+});
+
+$app->mount(__DIR__, '*.php');
+$app->mount(__DIR__, '*/*.php');
+$app->run();
