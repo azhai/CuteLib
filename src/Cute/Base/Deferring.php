@@ -12,7 +12,7 @@ namespace Cute\Base;
 /**
  * 可析构类
  */
-trait Destructible
+trait Deferring
 {
     protected $closed = false;
     

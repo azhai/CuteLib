@@ -18,7 +18,17 @@ if (! function_exists('trait_exists')) {
 
 
 /**
- * 加载器
+ * 类加载器
+ *
+ * USAGE:
+ * defined('APP_ROOT') or define('APP_ROOT', dirname(__DIR__));
+ * defined('VENDOR_ROOT') or define('VENDOR_ROOT', APP_ROOT . '/vendor');
+ * require_once APP_ROOT . '/src/Cute/Importer.php';
+ * $importer = \Cute\Importer::getInstance();
+ * $importer->addNamespace('NotORM', VENDOR_ROOT . '/notorm');
+ * //OR
+ * $importer->addClass(VENDOR_ROOT . '/notorm/NotORM.php',
+ *         'NotORM', 'NotORM_Result', 'NotORM_Row', 'NotORM_Literal', 'NotORM_Structure');
  */
 final class Importer
 {

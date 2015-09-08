@@ -13,7 +13,6 @@ use \Cute\View\Templater;
 use \Cute\Utility\Inflect;
 
 
-
 /**
  * 查询
  */
@@ -26,7 +25,10 @@ class Query
     protected $fetch_style = 0;
     protected $constrains = array();
     protected $parameters = array();
-    public $additions = array();
+    public $additions = array(
+        'GROUP BY' => null, 'HAVING' => null,
+        'ORDER BY' => null, 'LIMIT' => null,
+    );
     public $relations = array();
 
     public function __construct(Database& $db, $model = '\\Cute\\ORM\\Model', $table = '')
@@ -46,6 +48,21 @@ class Query
             $this->table = exec_method_array($this->model, 'getTable');
         } else {
             $this->table = $table;
+        }
+    }
+    
+    public function __call($name, $args)
+    {
+        $name = str_replace('_', ' ', strtoupper($name));
+        if (array_key_exists($name, $this->additions)) {
+            $this->additions[$name] = implode(', ', $args);
+            return $this;
+        } else {
+            $columns = empty($args) ? '*' : implode(', ', $args);
+            $stmt = $this->select("$name($columns)");
+            $data = $stmt->fetchColumn();
+            $stmt->closeCursor();
+            return $data;
         }
     }
 
@@ -149,22 +166,25 @@ class Query
         return $this;
     }
 
-    public function where(array& $args = array())
+    public function where($cond = '', array& $args = array())
     {
         $where = implode(' AND ', $this->constrains);
         $params = $this->parameters;
-        if (count($args) > 0) {
-            $where .= ($where ? ' AND ' : '') . array_shift($args);
+        if ($cond || count($args) > 0) {
+            $where .= ($where ? ' AND ' : '') . $cond;
             $params = array_merge($params, $args);
         }
         $where = $where ? 'WHERE ' . $where : '';
         return array($where, $params);
     }
     
-    public function select($columns = '*', array $args = array())
+    /**
+     * Select查询，返回stmt
+     */
+    public function select($columns = '*', $cond = '', array& $args = array())
     {
         $table_name = $this->getTable(true);
-        list($where, $params) = $this->where($args);
+        list($where, $params) = $this->where($cond, $args);
         if (is_object($columns)) {
             $columns = get_object_vars($columns);
         }
@@ -176,15 +196,20 @@ class Query
         $columns = trim($columns);
         $sql = "SELECT $columns FROM $table_name $where";
         foreach ($this->additions as $key => $value) {
-            $sql .= " $key $value";
+            if (! is_null($value)) {
+                $sql .= " $key $value";
+            }
         }
         return $this->getDB()->query(rtrim($sql), $params);
     }
-
-    public function rows($key = false, $columns = '*')
+    
+    /**
+     * 返回关联数组的数组
+     */
+    public function rows($key = false, $columns = '*', $cond = '')
     {
-        $args = array_slice(func_get_args(), 2);
-        if ($stmt = $this->select($columns, $args)) {
+        $args = array_slice(func_get_args(), 3);
+        if ($stmt = $this->select($columns, $cond, $args)) {
             $result = array();
             if ($key === false || is_null($key)) {
                 $result = $stmt->fetchAll();
@@ -198,13 +223,16 @@ class Query
         }
     }
 
-    public function all($limit = -1, $columns = '*')
+    /**
+     * 返回Model的数组
+     */
+    public function all($limit = -1, $columns = '*', $cond = '')
     {
         if ($limit >= 0) {
             $this->additions['LIMIT'] = intval($limit);
         }
-        $args = array_slice(func_get_args(), 2);
-        if ($stmt = $this->select($columns, $args)) {
+        $args = array_slice(func_get_args(), 3);
+        if ($stmt = $this->select($columns, $cond, $args)) {
             $result = $stmt->fetchAll($this->fetch_style, $this->getModel());
             $stmt->closeCursor();
             foreach ($this->relations as $name => &$relation) {
@@ -213,15 +241,18 @@ class Query
         }
         return $result;
     }
-
-    public function combine($field, array& $result, $unique = false, $columns = '*')
+    
+    /**
+     * 按fkey分组，用于外键查询
+     */
+    public function combine($fkey, array& $result, $unique = false, $columns = '*')
     {
-        if (empty($field) || count($result) === 0) {
+        if (empty($fkey) || count($result) === 0) {
             return $result;
         }
-        $this->contain($field, array_keys($result));
+        $this->contain($fkey, array_keys($result));
         if ($columns === '*') {
-            $columns = sprintf('%s,%s.*', $field, $this->getTable(false));
+            $columns = sprintf('%s,%s.*', $fkey, $this->getTable(false));
         }
         if ($stmt = $this->select($columns)) {
             $combine_style = $unique ? PDO::FETCH_UNIQUE : PDO::FETCH_GROUP;
@@ -232,6 +263,9 @@ class Query
         return $result;
     }
 
+    /**
+     * 获取单个Model对象或null
+     */
     public function get($id, $key = false, $columns = '*')
     {
         if (empty($key)) {
@@ -245,11 +279,14 @@ class Query
         return count($objs) > 0 ? reset($objs) : null;
     }
 
-    public function delete()
+    /**
+     * 删除或清空
+     */
+    public function delete($cond = '')
     {
-        $args = func_get_args();
+        $args = array_slice(func_get_args(), 1);
         $table_name = $this->getTable(true);
-        list($where, $params) = $this->where($args);
+        list($where, $params) = $this->where($cond, $args);
         $sql = "DELETE FROM $table_name $where";
         $db = $this->getDB();
         if (empty($where) && $db->getDriverName() === 'mysql') {
@@ -257,38 +294,48 @@ class Query
         }
         return $db->execute(rtrim($sql), $params);
     }
-
-    /**
-     * 更新表中的一些字段
-     * @param string $table 数据表名
-     * @param array $changes 更新的字段和值，关联数组
-     * @param boolean $delay 延迟写入
-     * @param string $where 条件
-     * @param mixed ... where条件中的替代值
-     *              ... 其他替代值
-     * @return 影响的行数
-     */
-    public function update(array $changes, $delay = false)
+    
+    public function getUpdateSet(array $changes)
     {
-        $args = array_slice(func_get_args(), 2);
-        $table_name = $this->getTable(true);
-        list($where, $params) = $this->where($args);
         $sets = array();
         $values = array();
         foreach ($changes as $key => $val) {
             $sets[] = $key . '=?';
             $values[] = $val;
         }
+        $setsql = "SET " . implode(', ', $sets);
+        return array($setsql, $values);
+    }
+
+    /**
+     * 更新表中的一些字段
+     * @param array $changes 更新的字段和值，关联数组
+     * @param boolean $delay 延迟写入
+     * @param string $cond 条件
+     * @param array $args 条件中替代值
+     * @return 影响的行数
+     */
+    public function update(array $changes, $delay = false, $cond = '')
+    {
+        $args = array_slice(func_get_args(), 3);
+        $table_name = $this->getTable(true);
+        list($where, $params) = $this->where($cond, $args);
+        list($setsql, $values) = $this->getUpdateSet($changes);
         $verb = $delay ? 'UPDATE DELAYED' : 'UPDATE';
-        $sql = "$verb $table_name SET " . implode(', ', $sets) . " $where";
+        $sql = "$verb $table_name $setsql $where";
         $params = array_merge($values, $params);
         return $this->getDB()->execute(rtrim($sql), $params);
     }
 
-    public function getInsertSQL(array $columns, $delay = false)
+    public function getInsertSQL(array $columns,
+                                $delay = false, $replace = false)
     {
         $table_name = $this->getTable(true);
-        $verb = $delay ? 'INSERT DELAYED' : 'INSERT INTO';
+        if ($replace === true) {
+            $verb = $delay ? 'REPLACE DELAYED' : 'REPLACE INTO';
+        } else {
+            $verb = $delay ? 'INSERT DELAYED' : 'INSERT INTO';
+        }
         if ($count = count($columns)) {
             $columns = implode(',', $columns);
             $marks = implode(', ', array_fill(0, $count, '?'));
@@ -298,10 +345,17 @@ class Query
         }
     }
 
-    public function insert(array $newbie, $delay = false)
+    /**
+     * 往表中插入一行
+     * @param array $newbie 插入的字段和值，关联数组
+     * @param boolean $delay 延迟写入
+     * @return 自增ID
+     */
+    public function insert(array $newbie, $delay = false, $replace = false)
     {
         assert($db = $this->getDB());
-        list($sql, $marks) = $this->getInsertSQL(array_keys($newbie), $delay);
+        list($sql, $marks) = $this->getInsertSQL(array_keys($newbie),
+                                                $delay, $replace);
         if (! empty($marks)) {
             $sql .= " VALUES ($marks)";
             $params = array_values($newbie);
@@ -311,14 +365,18 @@ class Query
         }
     }
 
-    public function insertBulk(array $rows, array $columns = null, $delay = false)
+    /**
+     * 插于多行
+     */
+    public function insertBulk(array $rows, array $columns = null,
+                                $delay = false, $replace = false)
     {
         assert(count($rows) > 0);
         $table_name = $this->getTable(true);
         if (empty($columns)) {
             $columns = array_keys(reset($rows));
         }
-        list($sql, $marks) = $this->getInsertSQL($columns, $delay);
+        list($sql, $marks) = $this->getInsertSQL($columns, $delay, $replace);
         $chunks = array_chunk($rows, self::COUNT_INSERT_BULK_MAX);
         foreach ($chunks as $chunk) {
             $more_marks = array_fill(0, count($chunk), "($marks)");

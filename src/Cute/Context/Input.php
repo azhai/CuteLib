@@ -9,6 +9,10 @@
 namespace Cute\Context;
 
 
+/**
+ * 输入参数过滤器
+ * 注意$_SERVER中只有少量元素出现在INPUT_SERVER中
+ */
 class Input
 {
     /* 可用INPUT_GET|INPUT_POST|INPUT_COOKIE|INPUT_SERVER|INPUT_ENV */

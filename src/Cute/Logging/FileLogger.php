@@ -17,7 +17,7 @@ defined('LOG_WRITE_FILE_FREQ') or define('LOG_WRITE_FILE_FREQ', 0.2); //写文�
  */
 class FileLogger extends Logger
 {
-    use \Cute\Base\Destructible;
+    use \Cute\Base\Deferring;
     
     protected $filename = '';
     protected $records = array();

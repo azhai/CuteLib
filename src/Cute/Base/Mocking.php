@@ -12,7 +12,7 @@ namespace Cute\Base;
 /**
  * 可替代类
  */
-trait Imitation
+trait Mocking
 {
     protected $inner = null;
     
