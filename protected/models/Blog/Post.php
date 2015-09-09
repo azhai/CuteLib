@@ -2,7 +2,7 @@
 
 namespace Blog;
 use \Cute\ORM\Model;
-use \Cute\ORM\Relation;
+use \Cute\ORM\HasMany;
 
 
 /**
@@ -47,7 +47,7 @@ class Post extends Model
     public function getRelations()
     {
         return array(
-            'comments' => new Relation(Relation::TYPE_HAS_MANY, '\\Blog\\Comment', '', 'comment_post_ID'),
+            'comments' => new HasMany('\\Blog\\Comment', '', 'comment_post_ID'),
         );
     }
 }

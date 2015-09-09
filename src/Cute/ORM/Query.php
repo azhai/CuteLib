@@ -25,11 +25,13 @@ class Query
     protected $fetch_style = 0;
     protected $constrains = array();
     protected $parameters = array();
-    public $additions = array(
+    protected $page = 1;
+    protected $size = -1;
+    protected $additions = array(
         'GROUP BY' => null, 'HAVING' => null,
-        'ORDER BY' => null, 'LIMIT' => null,
+        'ORDER BY' => null,
     );
-    public $relations = array();
+    protected $relations = array();
 
     public function __construct(Database& $db, $model = '\\Cute\\ORM\\Model', $table = '')
     {
@@ -53,12 +55,16 @@ class Query
     
     public function __call($name, $args)
     {
+        $columns = empty($args) ? '' : implode(', ', $args);
         $name = str_replace('_', ' ', strtoupper($name));
+        if ($name === 'GROUPBY' || $name === 'ORDERBY') {
+            //将groupBy/orderBy改写为正确格式
+            $name = substr($name, 0, -2) . ' BY'; 
+        }
         if (array_key_exists($name, $this->additions)) {
-            $this->additions[$name] = implode(', ', $args);
+            $this->additions[$name] = $columns;
             return $this;
         } else {
-            $columns = empty($args) ? '*' : implode(', ', $args);
             $stmt = $this->select("$name($columns)");
             $data = $stmt->fetchColumn();
             $stmt->closeCursor();
@@ -179,6 +185,51 @@ class Query
     }
     
     /**
+     * 分页
+     */
+    public function slice($size, $page = 1)
+    {
+        $this->size = intval($size); //负数表示不分页
+        $this->page = intval($page); //0表示不分页，负数是反向页码
+        return $this;
+    }
+    
+    /**
+     * 计算行数
+     */
+    public function count($columns = '*')
+    {
+        $stmt = $this->select("COUNT($columns)");
+        $data = $stmt->fetchColumn();
+        $stmt->closeCursor();
+        return $data; //false是查询失败
+    }
+    
+    public function getLimit($columns = '*')
+    {
+        $top = "";
+        $limit = "";
+        if (! starts_with($columns, 'COUNT') && $this->size > 0) { //限制行数
+            $driver = $this->getDB()->getDriverName();
+            if ($driver === 'sqlsrv') { //MS SQLServer的TOP格式
+                $top = sprintf("TOP %d ", $this->size);
+            } else if ($driver === 'mysql') { //MySQL的LIMIT格式
+                $offset = "";
+                if ($this->page > 0) {
+                    $offset = (($this->page - 1) * $this->size) . ", ";
+                } else if ($this->page < 0) { //反向页码，同时能检查页码是否越界
+                    $last = ceil($this->count() / $this->size);
+                    if ($last > 0 && ($page = $this->page + $last) > 0) {
+                        $offset = ($page * $this->size) . ", ";
+                    }
+                }
+                $limit = sprintf(" LIMIT %s%d", $offset, $this->size);
+            }
+        }
+        return array($top, $limit);
+    }
+    
+    /**
      * Select查询，返回stmt
      */
     public function select($columns = '*', $cond = '', array& $args = array())
@@ -188,19 +239,23 @@ class Query
         if (is_object($columns)) {
             $columns = get_object_vars($columns);
         }
-        if (is_array($columns)) {
+        if (is_array($columns)) { //字段使用as别名
             array_walk($columns, create_function('&$v,$k', 
                     'if(!is_numeric($k))$v.=" as ".$k;'));
             $columns = implode(', ', $columns);
         }
         $columns = trim($columns);
-        $sql = "SELECT $columns FROM $table_name $where";
+        $additions = ""; //分组、排序
         foreach ($this->additions as $key => $value) {
             if (! is_null($value)) {
-                $sql .= " $key $value";
+                $additions .= " $key $value";
             }
         }
-        return $this->getDB()->query(rtrim($sql), $params);
+        list($top, $limit) = $this->getLimit($columns);
+        $sql = "SELECT $top$columns FROM $table_name";
+        $sql .= ($where ? ' ' . $where : '') . $additions . $limit;
+        $db = $this->getDB();
+        return $db->query(rtrim($sql), $params);
     }
     
     /**
@@ -226,11 +281,8 @@ class Query
     /**
      * 返回Model的数组
      */
-    public function all($limit = -1, $columns = '*', $cond = '')
+    public function all($columns = '*', $cond = '')
     {
-        if ($limit >= 0) {
-            $this->additions['LIMIT'] = intval($limit);
-        }
         $args = array_slice(func_get_args(), 3);
         if ($stmt = $this->select($columns, $cond, $args)) {
             $result = $stmt->fetchAll($this->fetch_style, $this->getModel());
@@ -275,7 +327,7 @@ class Query
             }
             $key = reset($pkeys);
         }
-        $objs = $this->all(1, $columns, "$key = ?", $id);
+        $objs = $this->slice(1)->all($columns, "$key = ?", $id);
         return count($objs) > 0 ? reset($objs) : null;
     }
 

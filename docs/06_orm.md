@@ -28,16 +28,16 @@ foreach ($tables as $table) {
 $app->import($ns, APP_ROOT . '/protected/models');
 
 //接着在PostModel类中，添加与Comment的一对多关系
+use \Cute\ORM\HasMany;
 public function getRelations()
 {
     return array(
-        'comments' => new Relation(Relation::TYPE_HAS_MANY,
-                        '\\Blog\\Comment', '', 'comment_post_ID'),
+        'comments' => new HasMany('\\Blog\\Comment', '', 'comment_post_ID'),
     );
 }
 
 //最后查询最近发表的5个Post，以及它们的Comment
 $model = 'Post';
 $query = new Query($db, sprintf('\\%s\\%s', $ns, $model));
-$posts = $query->join('comments')->order_by('post_date DESC')->all(5);
+$posts = $query->join('comments')->orderBy('post_date DESC')->slice(5)->all();
 ```

@@ -4,7 +4,6 @@ if ($ns):
 endif;
 ?>
 use \Cute\ORM\Model;
-use \Cute\ORM\Relation;
 
 
 /**

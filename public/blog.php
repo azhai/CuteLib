@@ -11,7 +11,7 @@ class BlogHandler extends Handler
     {
         $query = $this->query('Post')->join('comments');
         if ($title === false) {
-            $post = $query->order_by('post_date DESC')->all(5);
+            $post = $query->orderBy('post_date DESC')->slice(5)->all();
         } else {
             $post = $query->get($title, 'post_name');
         }
