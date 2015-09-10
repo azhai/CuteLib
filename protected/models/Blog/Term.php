@@ -2,7 +2,7 @@
 
 namespace Blog;
 use \Cute\ORM\Model;
-use \Cute\ORM\Relation;
+use \Cute\ORM\HasOne;
 
 
 /**
@@ -27,6 +27,8 @@ class Term extends Model
 
     public function getRelations()
     {
-        return array();
+        return array(
+            'taxonomy' => new HasOne('\\Blog\\TermTaxonomy'),
+        );
     }
 }

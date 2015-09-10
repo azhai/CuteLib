@@ -17,7 +17,7 @@ class BelongsTo extends Relation
 {
     protected $foreign_key = '';
     
-    public function __construct($model = '\\Cute\\Model', $table = '',
+    public function __construct($model = '\\Cute\\ORM\\Model', $table = '',
                                 $foreign_key = '')
     {
         parent::__construct($model, $table);
@@ -37,25 +37,15 @@ class BelongsTo extends Relation
         if (empty($result)) {
             return array();
         }
-        $fkey = $this->getForeignKey($name);
-        $query = $this->newQuery();
         $pkeys = exec_method_array($this->model, 'getPKeys');
         if (empty($pkeys)) {
             return array();
         }
-        $values = array();
-        foreach ($result as &$object) {
-            $values[$object->$fkey] = null;
-        }
+        $fkey = $this->getForeignKey($name);
+        $values = $this->getAttrs($result, $fkey);
+        $query = $this->newQuery();
         $query->combine(reset($pkeys), $values, true);
-        foreach ($result as &$object) {
-            $key = $object->$fkey;
-            if (isset($values[$key])) {
-                $object->$name = & $values[$key];
-            } else {
-                $object->$name = null;
-            }
-        }
+        $this->setAttrs($result, $values, $name, $fkey);
         return $values;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Blog;
 use \Cute\ORM\Model;
+use \Cute\ORM\BelongsTo;
 use \Cute\ORM\HasMany;
+use \Cute\ORM\ManyToMany;
 
 
 /**
@@ -47,7 +49,11 @@ class Post extends Model
     public function getRelations()
     {
         return array(
+            'metas' => new HasMany('\\Blog\\PostMeta'),
             'comments' => new HasMany('\\Blog\\Comment', '', 'comment_post_ID'),
+            'author' => new BelongsTo('\\Blog\\User', '', 'post_author'),
+            'taxonomies' => new ManyToMany('\\Blog\\TermTaxonomy', '',
+                            'object_id', 'term_taxonomy_id', 'term_relationships'),
         );
     }
 }

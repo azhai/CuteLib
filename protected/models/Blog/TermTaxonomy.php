@@ -2,7 +2,7 @@
 
 namespace Blog;
 use \Cute\ORM\Model;
-use \Cute\ORM\Relation;
+use \Cute\ORM\BelongsTo;
 
 
 /**
@@ -29,6 +29,8 @@ class TermTaxonomy extends Model
 
     public function getRelations()
     {
-        return array();
+        return array(
+            'term' => new BelongsTo('\\Blog\\Term'),
+        );
     }
 }

@@ -17,8 +17,9 @@ use \Cute\Utility\Inflect;
 class HasMany extends Relation
 {
     protected $foreign_key = '';
+    protected $is_unique = false;
     
-    public function __construct($model = '\\Cute\\Model', $table = '',
+    public function __construct($model = '\\Cute\\ORM\\Model', $table = '',
                                 $foreign_key = '')
     {
         parent::__construct($model, $table);
@@ -40,20 +41,11 @@ class HasMany extends Relation
             return array();
         }
         $fkey = $this->getForeignKey();
+        $values = $this->getAttrs($result);
         $query = $this->newQuery();
-        $values = array();
-        foreach ($result as &$object) {
-            $values[$object->getID()] = null;
-        }
-        $query->combine($fkey, $values, false);
-        foreach ($result as &$object) {
-            $key = $object->getID();
-            if (isset($values[$key])) {
-                $object->$name = & $values[$key];
-            } else {
-                $object->$name = array();
-            }
-        }
+        $query->combine($fkey, $values, $this->is_unique);
+        $default = $this->is_unique ? null : array();
+        $this->setAttrs($result, $values, $name, false, $default);
         return $values;
     }
 }

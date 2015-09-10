@@ -15,7 +15,7 @@ return array(
         'default' => array(
             'dsn' => 'mysql:host=127.0.0.1;charset=utf8',
             'user' => 'dba',
-            'password' => '',
+            'password' => 'dba@#',
             'options' => array(
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
@@ -35,6 +35,7 @@ return array(
     ),
     '\\Cute\\Logging\\FileLogger' => array(
         'default' => array('name' => 'php', 'directory' => APP_ROOT . '/runtime/logs'),
+        'sql' => array('name' => 'sql', 'directory' => APP_ROOT . '/runtime/logs'),
         'error' => array('name' => 'error', 'directory' => APP_ROOT . '/runtime/logs', 'ERROR'),
     ),
     '\\Cute\\View\\Templater' => array(

@@ -9,7 +9,7 @@
 namespace Cute\Logging;
 use \Cute\Logging\Logger;
 
-defined('LOG_WRITE_FILE_FREQ') or define('LOG_WRITE_FILE_FREQ', 0.2); //写文件的概率
+defined('LOG_WRITE_FILE_FREQ') or define('LOG_WRITE_FILE_FREQ', 1); //写文件的概率
 
 
 /**

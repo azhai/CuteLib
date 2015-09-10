@@ -19,7 +19,7 @@ abstract class Relation
     protected $model = '';
     protected $table = '';
     
-    public function __construct($model = '\\Cute\\Model', $table = '')
+    public function __construct($model = '\\Cute\\ORM\\Model', $table = '')
     {
         $this->model = $model;
         $this->table = $table;
@@ -31,10 +31,39 @@ abstract class Relation
         return $this;
     }
 
-    public function newQuery()
+    public function newQuery($model = '', $table = '')
     {
         assert($db = $this->query->getDB());
-        return new Query($db, $this->model, $this->table);
+        if (empty($model)) {
+            $model = & $this->model;
+        }
+        if (empty($table)) {
+            $table = $this->table;
+        }
+        return new Query($db, $model, $table);
+    }
+    
+    protected function getAttrs(array& $result, $attr = false)
+    {
+        $attrs = array();
+        foreach ($result as &$object) {
+            $key = $attr ? $object->$attr : $object->getID();
+            $attrs[$key] = null;
+        }
+        return $attrs;
+    }
+    
+    protected function setAttrs(array& $result, array& $values, $name,
+                                $attr = false, $default = null)
+    {
+        foreach ($result as &$object) {
+            $key = $attr ? $object->$attr : $object->getID();
+            if (isset($values[$key])) {
+                $object->$name = & $values[$key];
+            } else {
+                $object->$name = $default;
+            }
+        }
     }
 
     abstract public function relative($name, array& $result);

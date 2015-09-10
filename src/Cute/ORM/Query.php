@@ -19,14 +19,17 @@ use \Cute\Utility\Inflect;
 class Query
 {
     const COUNT_INSERT_BULK_MAX = 500; //批量插入一次最多条数
+    public static $protected_fields = array('password', 'salt', 'user_pass');
+    
     protected $db = null;
     protected $table = '';
     protected $model = '';
     protected $fetch_style = 0;
     protected $constrains = array();
     protected $parameters = array();
-    protected $page = 1;
-    protected $size = -1;
+    protected $total = -1;
+    protected $offset = 0;
+    protected $length = -1;
     protected $additions = array(
         'GROUP BY' => null, 'HAVING' => null,
         'ORDER BY' => null,
@@ -63,6 +66,7 @@ class Query
         }
         if (array_key_exists($name, $this->additions)) {
             $this->additions[$name] = $columns;
+            $this->total = -1; //总量清零
             return $this;
         } else {
             $stmt = $this->select("$name($columns)");
@@ -90,7 +94,7 @@ class Query
         $filename = "$dir/$name.php";
         $data['name'] = $name;
         $data['ns'] = $ns;
-        $data['protecteds'] = array('password', 'salt');
+        $data['protecteds'] = self::$protected_fields;
         $tpl = new Templater(SRC_ROOT);
         ob_start();
         $tpl->render('model_tpl.php', $data);
@@ -119,14 +123,18 @@ class Query
         }
     }
 
-    public function join($name)
+    public function join($name = '*')
     {
-        $names = func_get_args();
         $model = exec_construct_array($this->model);
         $relations = $model->getRelations();
-        foreach ($names as $name) {
-            if (isset($relations[$name])) {
-                $this->relations[$name] = & $relations[$name];
+        if ($name === '*') {
+            $this->relations = & $relations;
+        } else {
+            $names = func_get_args();
+            foreach ($names as $name) {
+                if ($name && isset($relations[$name])) {
+                    $this->relations[$name] = & $relations[$name];
+                }
             }
         }
         return $this;
@@ -146,6 +154,7 @@ class Query
         $values = array_values($values);
         $this->constrains[] = "$field $op";
         $this->parameters = array_merge($this->parameters, $values);
+        $this->total = -1; //总量清零
         return $this;
     }
 
@@ -169,10 +178,44 @@ class Query
             $this->constrains[] = ($op === false) ? $cond : "$cond $op";
             $this->parameters[] = $value;
         }
+        $this->total = -1; //总量清零
         return $this;
     }
+    
+    /**
+     * 分页
+     */
+    public function setPage($page_size, $page_no = 1)
+    {
+        $this->length = intval($page_size) < 0 ? -1 : intval($page_size);
+        if ($this->length > 0) {
+            $page_no = intval($page_no); //0表示不分页，负数是反向页码
+            if ($page_no > 0) {
+                $this->offset = ($page_no - 1) * $this->length;
+            } else if ($page_no < 0) { //反向页码，同时能检查页码是否越界
+                $last_page = ceil($this->count() / $this->length);
+                if ($last_page > 0 && ($page_no = $page_no + $last_page) > 0) {
+                    $this->offset = $page_no * $this->length;
+                }
+            }
+        }
+        return $this;
+    }
+    
+    /**
+     * 计算行数
+     */
+    public function count($columns = '*')
+    {
+        if ($this->total === false || $this->total < 0) {
+            $stmt = $this->select("COUNT($columns)");
+            $this->total = $stmt->fetchColumn();
+            $stmt->closeCursor();
+        }
+        return $this->total; //false是查询失败
+    }
 
-    public function where($cond = '', array& $args = array())
+    protected function where($cond = '', array& $args = array())
     {
         $where = implode(' AND ', $this->constrains);
         $params = $this->parameters;
@@ -184,46 +227,33 @@ class Query
         return array($where, $params);
     }
     
-    /**
-     * 分页
-     */
-    public function slice($size, $page = 1)
+    protected function getTail($exclude = '')
     {
-        $this->size = intval($size); //负数表示不分页
-        $this->page = intval($page); //0表示不分页，负数是反向页码
-        return $this;
+        $excludes = func_get_args();
+        $additions = ""; //分组、排序
+        foreach ($this->additions as $key => $value) {
+            if (! is_null($value) && ! in_array($key, $excludes)) {
+                $additions .= " $key $value";
+            }
+        }
+        return $additions;
     }
     
-    /**
-     * 计算行数
-     */
-    public function count($columns = '*')
+    protected function getLimit()
     {
-        $stmt = $this->select("COUNT($columns)");
-        $data = $stmt->fetchColumn();
-        $stmt->closeCursor();
-        return $data; //false是查询失败
-    }
-    
-    public function getLimit($columns = '*')
-    {
+        if ($this->length <= 0) {
+            return array("", "");
+        }
         $top = "";
         $limit = "";
-        if (! starts_with($columns, 'COUNT') && $this->size > 0) { //限制行数
-            $driver = $this->getDB()->getDriverName();
-            if ($driver === 'sqlsrv') { //MS SQLServer的TOP格式
-                $top = sprintf("TOP %d ", $this->size);
-            } else if ($driver === 'mysql') { //MySQL的LIMIT格式
-                $offset = "";
-                if ($this->page > 0) {
-                    $offset = (($this->page - 1) * $this->size) . ", ";
-                } else if ($this->page < 0) { //反向页码，同时能检查页码是否越界
-                    $last = ceil($this->count() / $this->size);
-                    if ($last > 0 && ($page = $this->page + $last) > 0) {
-                        $offset = ($page * $this->size) . ", ";
-                    }
-                }
-                $limit = sprintf(" LIMIT %s%d", $offset, $this->size);
+        $driver = $this->getDB()->getDriverName();
+        if ($driver === 'sqlsrv') { //MS SQLServer的TOP格式
+            $top = sprintf("TOP %d ", $this->length);
+        } else if ($driver === 'mysql') { //MySQL的LIMIT格式
+            if ($this->offset > 0) {
+                $limit = sprintf(" LIMIT %d, %d", $this->offset, $this->length);
+            } else {
+                $limit = sprintf(" LIMIT %d", $this->length);
             }
         }
         return array($top, $limit);
@@ -245,13 +275,14 @@ class Query
             $columns = implode(', ', $columns);
         }
         $columns = trim($columns);
-        $additions = ""; //分组、排序
-        foreach ($this->additions as $key => $value) {
-            if (! is_null($value)) {
-                $additions .= " $key $value";
-            }
+        if (starts_with($columns, 'COUNT')) {
+            $additions = $this->getTail('ORDER BY');
+            $top = "";
+            $limit = "";
+        } else {
+            $additions = $this->getTail();
+            list($top, $limit) = $this->getLimit();
         }
-        list($top, $limit) = $this->getLimit($columns);
         $sql = "SELECT $top$columns FROM $table_name";
         $sql .= ($where ? ' ' . $where : '') . $additions . $limit;
         $db = $this->getDB();
@@ -283,7 +314,7 @@ class Query
      */
     public function all($columns = '*', $cond = '')
     {
-        $args = array_slice(func_get_args(), 3);
+        $args = array_slice(func_get_args(), 2);
         if ($stmt = $this->select($columns, $cond, $args)) {
             $result = $stmt->fetchAll($this->fetch_style, $this->getModel());
             $stmt->closeCursor();
@@ -327,7 +358,7 @@ class Query
             }
             $key = reset($pkeys);
         }
-        $objs = $this->slice(1)->all($columns, "$key = ?", $id);
+        $objs = $this->setPage(1)->all($columns, "$key = ?", $id);
         return count($objs) > 0 ? reset($objs) : null;
     }
 

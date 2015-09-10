@@ -6,6 +6,7 @@ use \Cute\ORM\Query;
 trait BlogQuery
 {
     protected $db = null;
+    protected $logger = null;
     protected $ns = 'Blog';
     
     public function loadModels($ns, $dir)
@@ -34,5 +35,16 @@ trait BlogQuery
     public function query($model)
     {
         return new Query($this->db, sprintf('\\%s\\%s', $this->ns, $model));
+    }
+    
+    public function logSQL()
+    {
+        if (! $this->logger) {
+            $this->logger = $this->app->load('\\Cute\\Logging\\FileLogger', 'sql');
+        }
+        $sql_rows = $this->db->getPastSQL();
+        foreach ($sql_rows as $row) {
+            $this->logger->info('{act} "{sql}";', $row);
+        }
     }
 }

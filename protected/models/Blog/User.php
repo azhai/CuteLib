@@ -2,7 +2,7 @@
 
 namespace Blog;
 use \Cute\ORM\Model;
-use \Cute\ORM\Relation;
+use \Cute\ORM\HasMany;
 
 
 /**
@@ -12,7 +12,7 @@ class User extends Model
 {
     protected $ID = NULL;
     public $user_login = '';
-    public $user_pass = '';
+    protected $user_pass = '';
     public $user_nicename = '';
     public $user_email = '';
     public $user_url = '';
@@ -34,8 +34,10 @@ class User extends Model
     public function getRelations()
     {
         return array(
-            'metas' => new Relation(Relation::TYPE_BELONGS_TO, '\\Blog\\UserMeta'),
-            'posts' => new Relation(Relation::TYPE_HAS_MANY, '\\Blog\\Post', '', 'post_author'),
+            'metas' => new HasMany('\\Blog\\UserMeta'),
+            'posts' => new HasMany('\\Blog\\Post', '', 'post_author'),
+            'comments' => new HasMany('\\Blog\\Comment'),
+            'links' => new HasMany('\\Blog\\Link', '', 'link_owner'),
         );
     }
 }

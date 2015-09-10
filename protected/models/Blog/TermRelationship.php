@@ -2,7 +2,6 @@
 
 namespace Blog;
 use \Cute\ORM\Model;
-use \Cute\ORM\Relation;
 
 
 /**

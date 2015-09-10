@@ -239,17 +239,23 @@ class Bale
         $ns = array('name'=> false, 'uses' => array());
         $i = 0;
         $count = count($tokens);
+        $class_started = false; //关键词class是否出现过，用于区分两种USE
         while ($i < $count) {
             $t = $tokens[$i++];
             if (!is_array($t))
                 $t = array(-1, $t);
 
-            if ($t[0] === T_COMMENT || $t[0] === T_DOC_COMMENT)
+            if ($t[0] === T_COMMENT || $t[0] === T_DOC_COMMENT) {
                 continue;
+            }
 
             if ($t[0] === T_WHITESPACE) {
                 $pending_whitespace .= $t[1];
                 continue;
+            }
+
+            if ($t[0] === T_CLASS) {
+                $class_started = true;
             }
             
             if ($t[0] === T_NAMESPACE) { //处理namespace，顶部声明改为体内声明的形式
@@ -257,7 +263,7 @@ class Bale
                 continue;
             }
             
-            if ($t[0] === T_USE) { //处理use，合并同一个namespace下相同的use
+            if ($class_started === false && $t[0] === T_USE) { //处理use，合并同一个namespace下相同的use
                 list($use_orig, $use_alias) = $this->parse_use($tokens, $t, $i, $count);
                 $ns['uses'][$use_alias] = $use_orig;
                 continue;

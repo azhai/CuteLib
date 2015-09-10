@@ -39,5 +39,5 @@ public function getRelations()
 //最后查询最近发表的5个Post，以及它们的Comment
 $model = 'Post';
 $query = new Query($db, sprintf('\\%s\\%s', $ns, $model));
-$posts = $query->join('comments')->orderBy('post_date DESC')->slice(5)->all();
+$posts = $query->join('comments')->orderBy('post_date DESC')->setPage(5)->all();
 ```

@@ -10,6 +10,7 @@ namespace {
     
     defined('VENDOR_ROOT') or define('VENDOR_ROOT', APP_ROOT . '/vendor');
     defined('APP_CLASS') or define('APP_CLASS', '\\Cute\\Website');
+    defined('SQL_VERBOSE') or define('SQL_VERBOSE', true); //是否记录执行过的SQL语句
     defined('ERROR_LEVEL') or define('ERROR_LEVEL', E_ALL & ~ E_DEPRECATED & ~ E_NOTICE);
     @error_reporting(ERROR_LEVEL);
     

@@ -15,7 +15,7 @@
     "suite": "Cutest\\CommonTest",
     "test": "Cutest\\CommonTest::test01StartsWith",
     "status": "pass",
-    "time": 0.0015840530395508,
+    "time": 0.0018060207366943,
     "trace": [],
     "message": "",
     "output": ""
@@ -28,7 +28,7 @@
     "suite": "Cutest\\CommonTest",
     "test": "Cutest\\CommonTest::test02EndsWith",
     "status": "pass",
-    "time": 0.00056600570678711,
+    "time": 0.00055813789367676,
     "trace": [],
     "message": "",
     "output": ""
@@ -41,7 +41,7 @@
     "suite": "Cutest\\CommonTest",
     "test": "Cutest\\CommonTest::test03ToUTF8",
     "status": "pass",
-    "time": 0.0024828910827637,
+    "time": 0.0028431415557861,
     "trace": [],
     "message": "",
     "output": ""
@@ -54,7 +54,7 @@
     "suite": "Cutest\\CommonTest",
     "test": "Cutest\\CommonTest::test04ExecFunctionArray",
     "status": "pass",
-    "time": 0.00076198577880859,
+    "time": 0.00074505805969238,
     "trace": [],
     "message": "",
     "output": ""
@@ -67,7 +67,7 @@
     "suite": "Cutest\\CommonTest",
     "test": "Cutest\\CommonTest::test05ExecMethodArray",
     "status": "pass",
-    "time": 0.000946044921875,
+    "time": 0.00093817710876465,
     "trace": [],
     "message": "",
     "output": ""
@@ -80,7 +80,7 @@
     "suite": "Cutest\\CommonTest",
     "test": "Cutest\\CommonTest::test06ExecConstructArray",
     "status": "pass",
-    "time": 0.0015099048614502,
+    "time": 0.0015630722045898,
     "trace": [],
     "message": "",
     "output": ""
@@ -97,7 +97,7 @@
     "suite": "Cutest\\Context\\InputTest",
     "test": "Cutest\\Context\\InputTest::test01Get",
     "status": "pass",
-    "time": 0.0010881423950195,
+    "time": 0.0011050701141357,
     "trace": [],
     "message": "",
     "output": ""
@@ -110,7 +110,7 @@
     "suite": "Cutest\\Context\\InputTest",
     "test": "Cutest\\Context\\InputTest::test02Post",
     "status": "pass",
-    "time": 0.00093388557434082,
+    "time": 0.00092792510986328,
     "trace": [],
     "message": "",
     "output": ""
@@ -123,7 +123,7 @@
     "suite": "Cutest\\Context\\InputTest",
     "test": "Cutest\\Context\\InputTest::test03Request",
     "status": "pass",
-    "time": 0.00078892707824707,
+    "time": 0.00074386596679688,
     "trace": [],
     "message": "",
     "output": ""
@@ -140,7 +140,7 @@
     "suite": "Cutest\\Context\\RouterTest",
     "test": "Cutest\\Context\\RouterTest::test01OneLevel",
     "status": "pass",
-    "time": 0.0010910034179688,
+    "time": 0.0011022090911865,
     "trace": [],
     "message": "",
     "output": ""
@@ -153,7 +153,7 @@
     "suite": "Cutest\\Context\\RouterTest",
     "test": "Cutest\\Context\\RouterTest::test02TwoLevel",
     "status": "pass",
-    "time": 0.0011610984802246,
+    "time": 0.0011849403381348,
     "trace": [],
     "message": "",
     "output": ""
@@ -166,7 +166,7 @@
     "suite": "Cutest\\Context\\RouterTest",
     "test": "Cutest\\Context\\RouterTest::test03NotFound",
     "status": "pass",
-    "time": 0.00061416625976562,
+    "time": 0.00060415267944336,
     "trace": [],
     "message": "",
     "output": ""
@@ -179,7 +179,7 @@
     "suite": "Cutest\\Context\\RouterTest",
     "test": "Cutest\\Context\\RouterTest::test04ChildrenOrder",
     "status": "pass",
-    "time": 0.00084400177001953,
+    "time": 0.00080609321594238,
     "trace": [],
     "message": "",
     "output": ""
@@ -196,7 +196,7 @@
     "suite": "Cutest\\HandlerSocket\\HSReadTest",
     "test": "Cutest\\HandlerSocket\\HSReadTest::test01Connect",
     "status": "pass",
-    "time": 0.0016779899597168,
+    "time": 0.0015048980712891,
     "trace": [],
     "message": "",
     "output": ""
@@ -209,7 +209,7 @@
     "suite": "Cutest\\HandlerSocket\\HSReadTest",
     "test": "Cutest\\HandlerSocket\\HSReadTest::test02GetByID",
     "status": "pass",
-    "time": 0.0017299652099609,
+    "time": 0.0015418529510498,
     "trace": [],
     "message": "",
     "output": ""
@@ -222,7 +222,7 @@
     "suite": "Cutest\\HandlerSocket\\HSReadTest",
     "test": "Cutest\\HandlerSocket\\HSReadTest::test03GetByName",
     "status": "pass",
-    "time": 0.0018119812011719,
+    "time": 0.0017058849334717,
     "trace": [],
     "message": "",
     "output": ""
@@ -235,7 +235,7 @@
     "suite": "Cutest\\HandlerSocket\\HSReadTest",
     "test": "Cutest\\HandlerSocket\\HSReadTest::test04Find",
     "status": "pass",
-    "time": 0.0019850730895996,
+    "time": 0.0018751621246338,
     "trace": [],
     "message": "",
     "output": ""
@@ -248,7 +248,7 @@
     "suite": "Cutest\\HandlerSocket\\HSReadTest",
     "test": "Cutest\\HandlerSocket\\HSReadTest::test05In",
     "status": "pass",
-    "time": 0.0019028186798096,
+    "time": 0.0018010139465332,
     "trace": [],
     "message": "",
     "output": ""
@@ -269,7 +269,7 @@
     "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #0 (1, '\u672a\u5206\u7c7b', 'uncategorized', 0)",
     "status": "pass",
-    "time": 0.0082149505615234,
+    "time": 0.0081448554992676,
     "trace": [],
     "message": "",
     "output": ""
@@ -282,7 +282,7 @@
     "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #1 (2, 'PHP\u8bed\u8a00', 'php', 1)",
     "status": "pass",
-    "time": 0.007127046585083,
+    "time": 0.0073390007019043,
     "trace": [],
     "message": "",
     "output": ""
@@ -295,7 +295,7 @@
     "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #2 (3, 'Python', 'python', 0)",
     "status": "pass",
-    "time": 0.0072708129882812,
+    "time": 0.0073990821838379,
     "trace": [],
     "message": "",
     "output": ""
@@ -308,7 +308,7 @@
     "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #3 (4, 'MySQL', 'mysql', 1)",
     "status": "pass",
-    "time": 0.007282018661499,
+    "time": 0.0075118541717529,
     "trace": [],
     "message": "",
     "output": ""
@@ -321,7 +321,7 @@
     "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #4 (5, 'Nginx', 'nginx', 0)",
     "status": "pass",
-    "time": 0.0074388980865479,
+    "time": 0.0074880123138428,
     "trace": [],
     "message": "",
     "output": ""
@@ -334,7 +334,7 @@
     "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #5 (6, 'Linux\u7cfb\u7edf', 'linux', 0)",
     "status": "pass",
-    "time": 0.0074169635772705,
+    "time": 0.0076451301574707,
     "trace": [],
     "message": "",
     "output": ""
@@ -347,7 +347,7 @@
     "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #6 (7, 'Android', 'android', 1)",
     "status": "pass",
-    "time": 0.0074279308319092,
+    "time": 0.0073649883270264,
     "trace": [],
     "message": "",
     "output": ""
@@ -360,7 +360,7 @@
     "suite": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test01Insert with data set #7 (8, 'iOS', 'ios', 1)",
     "status": "pass",
-    "time": 0.0075089931488037,
+    "time": 0.0075771808624268,
     "trace": [],
     "message": "",
     "output": ""
@@ -373,7 +373,7 @@
     "suite": "",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test02Update",
     "status": "pass",
-    "time": 0.0078089237213135,
+    "time": 0.0077641010284424,
     "trace": [],
     "message": "",
     "output": ""
@@ -386,7 +386,7 @@
     "suite": "",
     "test": "Cutest\\HandlerSocket\\HSWriteTest::test03Delete",
     "status": "pass",
-    "time": 0.024706840515137,
+    "time": 0.024834871292114,
     "trace": [],
     "message": "",
     "output": ""
@@ -403,7 +403,7 @@
     "suite": "Cutest\\ImporterTest",
     "test": "Cutest\\ImporterTest::test01AddNamespace",
     "status": "pass",
-    "time": 0.0014488697052002,
+    "time": 0.0012359619140625,
     "trace": [],
     "message": "",
     "output": ""
@@ -416,7 +416,7 @@
     "suite": "Cutest\\ImporterTest",
     "test": "Cutest\\ImporterTest::test02AddClass",
     "status": "pass",
-    "time": 0.0015709400177002,
+    "time": 0.0013039112091064,
     "trace": [],
     "message": "",
     "output": ""
@@ -433,7 +433,7 @@
     "suite": "Cutest\\Logging\\LoggerTest",
     "test": "Cutest\\Logging\\LoggerTest::test00Truncate",
     "status": "pass",
-    "time": 0.001121997833252,
+    "time": 0.00092887878417969,
     "trace": [],
     "message": "",
     "output": ""
@@ -441,4 +441,129 @@
     "event": "testStart",
     "suite": "Cutest\\Logging\\LoggerTest",
     "test": "Cutest\\Logging\\LoggerTest::test01Threshold"
+}{
+    "event": "test",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test01Threshold",
+    "status": "pass",
+    "time": 0.016206979751587,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test02SafeLogging"
+}{
+    "event": "test",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test02SafeLogging",
+    "status": "pass",
+    "time": 0.073228120803833,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "tests": 1
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "test": "Cutest\\Utility\\InflectTest::test01Flatten"
+}{
+    "event": "test",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "test": "Cutest\\Utility\\InflectTest::test01Flatten",
+    "status": "pass",
+    "time": 0.0016560554504395,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "tests": 2
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test01TextIncrease"
+}{
+    "event": "test",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test01TextIncrease",
+    "status": "pass",
+    "time": 0.0011048316955566,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test02RedisIncrease"
+}{
+    "event": "test",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test02RedisIncrease",
+    "status": "pass",
+    "time": 0.00090503692626953,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "test",
+    "suite": "Cutest\\Logging\\LoggerTest",
+    "test": "Cutest\\Logging\\LoggerTest::test02SafeLogging",
+    "status": "pass",
+    "time": 0.097815990447998,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "tests": 1
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "test": "Cutest\\Utility\\InflectTest::test01Flatten"
+}{
+    "event": "test",
+    "suite": "Cutest\\Utility\\InflectTest",
+    "test": "Cutest\\Utility\\InflectTest::test01Flatten",
+    "status": "pass",
+    "time": 0.0014910697937012,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "suiteStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "tests": 2
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test01TextIncrease"
+}{
+    "event": "test",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test01TextIncrease",
+    "status": "pass",
+    "time": 0.0017518997192383,
+    "trace": [],
+    "message": "",
+    "output": ""
+}{
+    "event": "testStart",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test02RedisIncrease"
+}{
+    "event": "test",
+    "suite": "Cutest\\Widget\\CounterTest",
+    "test": "Cutest\\Widget\\CounterTest::test02RedisIncrease",
+    "status": "pass",
+    "time": 0.0014691352844238,
+    "trace": [],
+    "message": "",
+    "output": ""
 }

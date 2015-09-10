@@ -2,7 +2,7 @@
 
 namespace Blog;
 use \Cute\ORM\Model;
-use \Cute\ORM\Relation;
+use \Cute\ORM\BelongsTo;
 
 
 /**
@@ -27,6 +27,8 @@ class UserMeta extends Model
 
     public function getRelations()
     {
-        return array();
+        return array(
+            'user' => new BelongsTo('\\Blog\\User'),
+        );
     }
 }

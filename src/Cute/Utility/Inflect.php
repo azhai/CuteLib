@@ -121,7 +121,7 @@ class Inflect
         'P2P', 'PC', 'PV', 'PDF', 'PHP',
         'QQ',
         'RMB', 'RSA',
-        'SOHO', 'SHA',
+        'SOHO', 'SHA', 'SQL',
         'TV',
         'UI', 'URI', 'URL', 'USA',
         'VIP',

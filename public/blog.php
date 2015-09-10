@@ -9,11 +9,16 @@ class BlogHandler extends Handler
     
     public function get($title = false)
     {
-        $query = $this->query('Post')->join('comments');
+        $query = $this->query('Post')->join();
         if ($title === false) {
-            $post = $query->orderBy('post_date DESC')->slice(5)->all();
+            $post = $query->orderBy('post_date DESC')->setPage(2, -1)->all();
         } else {
             $post = $query->get($title, 'post_name');
+        }
+        //$this->logSQL();
+        $sql_rows = $this->db->getPastSQL();
+        foreach ($sql_rows as $row) {
+            var_dump($row);
         }
         var_dump($post);
     }

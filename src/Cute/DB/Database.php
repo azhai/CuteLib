@@ -17,6 +17,8 @@ use \Cute\DB\Literal;
  */
 class Database
 {
+    const ACTION_READ = 'R';
+    const ACTION_WRITE = 'W';
     const TYPE_UNSUPPORT = 0;
     const TYPE_TOP = 1;
     const TYPE_LIMIT = 2;
@@ -24,6 +26,8 @@ class Database
     protected $pdo = null;
     protected $dbname = '';
     protected $prefix = '';
+    protected $lower_table_name = null; //表明区分大小写时，是否强制小写处理
+    protected $past_sqls = array();
 
     public function __construct(PDO& $pdo, $dbname = '', $prefix = '')
     {
@@ -42,12 +46,32 @@ class Database
         $this->pdo->exec("USE `$dbname`");
         $this->dbname = $dbname;
         $this->prefix = empty($prefix) ? '' : $prefix;
+        $this->lower_table_name = null;
+        if (! array_key_exists($this->dbname, $this->past_sqls)) {
+            $this->past_sqls[$this->dbname] = array();
+        }
         return $this;
     }
 
     public function getPDO()
     {
         return $this->pdo;
+    }
+
+    public function getDBName()
+    {
+        return $this->dbname;
+    }
+
+    public function getPastSQL($dbname = false, $offset = 0)
+    {
+        if ($dbname === true || $dbname === '*') {
+            return $this->past_sqls;
+        }
+        $dbname = empty($dbname) ? $this->getDBName() : $dbname;
+        $sqls = $this->past_sqls[$dbname];
+        $offset = empty($offset) ? 0 : - abs($offset);
+        return $offset ? array_slice($sqls, $offset, null, true) : $sqls;
     }
 
     public function getDriverName()
@@ -57,22 +81,28 @@ class Database
         $driver = strtolower($driver);
         return $driver === 'dblib' ? 'sqlsrv' : $driver;
     }
-
-    public function getDBName()
+    
+    public function needTableToLower()
     {
-        return $this->dbname;
+        if (is_null($this->lower_table_name)) {
+            $driver_name = $this->getDriverName();
+            if ($driver_name === 'mysql') {
+                $sql = "SHOW Variables LIKE 'lower_case_table_names'";
+                $name_case = $this->fetch($sql, array(), 'Value');
+                $this->lower_table_name = intval($name_case) === 1;
+            } else {
+                $this->lower_table_name = false;
+            }
+        }
+        return $this->lower_table_name;
     }
 
     public function getTableName($table, $quote = false)
     {
         $table_name = $this->prefix . $table;
         $driver_name = $this->getDriverName();
-        if ($driver_name === 'mysql') {
-            $sql = "SHOW Variables LIKE 'lower_case_table_names'";
-            $name_case = $this->fetch($sql, array(), 'Value');
-            if (intval($name_case) === 1) { //不区分表名大小写
-                $table_name = strtolower($table_name);
-            }
+        if ($this->needTableToLower()) {
+            $table_name = strtolower($table_name);
         }
         if ($quote === false) {
             return $table_name;
@@ -126,6 +156,11 @@ class Database
             $message = "SQL: $sql\n" . $e->getMessage();
             throw new PDOException($message);
         }
+        if (SQL_VERBOSE) {
+            $this->past_sqls[$this->dbname][] = array(
+                'act' => self::ACTION_WRITE, 'sql' => $sql,
+            );
+        }
         return $result;
     }
 
@@ -141,6 +176,12 @@ class Database
             $sql = $this->embed($sql, $params);
             $message = "SQL: $sql\n" . $e->getMessage();
             throw new PDOException($message);
+        }
+        if (SQL_VERBOSE) {
+            $sql = $this->embed($sql, $params);
+            $this->past_sqls[$this->dbname][] = array(
+                'act' => self::ACTION_READ, 'sql' => $sql,
+            );
         }
         return $stmt;
     }
