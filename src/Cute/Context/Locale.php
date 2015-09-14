@@ -12,6 +12,7 @@ use \Cute\Context\Input;
 
 /**
  * 本地化
+ * NOTICE: 修改翻译需要重启php-fpm才能生效
  */
 class Locale
 {

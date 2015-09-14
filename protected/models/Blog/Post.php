@@ -50,10 +50,10 @@ class Post extends Model
     {
         return array(
             'metas' => new HasMany('\\Blog\\PostMeta'),
-            'comments' => new HasMany('\\Blog\\Comment', '', 'comment_post_ID'),
-            'author' => new BelongsTo('\\Blog\\User', '', 'post_author'),
-            'taxonomies' => new ManyToMany('\\Blog\\TermTaxonomy', '',
-                            'object_id', 'term_taxonomy_id', 'term_relationships'),
+            'comments' => new HasMany('\\Blog\\Comment', 'comment_post_ID'),
+            'author' => new BelongsTo('\\Blog\\User', 'post_author'),
+            'taxonomies' => new ManyToMany('\\Blog\\TermTaxonomy', 'object_id',
+                                    'term_taxonomy_id', 'term_relationships'),
         );
     }
 }

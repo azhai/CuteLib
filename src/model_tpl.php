@@ -11,13 +11,14 @@ use \Cute\ORM\Model;
  */
 class <?=$name?> extends Model
 {
+<?php if ($mixin):
+    echo '    use \\' . $mixin . ';' . "\n";
+endif; ?>
 <?php
 foreach ($fields as $field => $default):
     if (in_array($field, $pkeys)):
 ?>
     protected $<?=$field?> = NULL;
-<?php elseif (in_array($field, $protecteds)): ?>
-    protected $<?=$field?> = <?=var_export($default, true)?>;
 <?php else: ?>
     public $<?=$field?> = <?=var_export($default, true)?>;
 <?php
@@ -34,9 +35,11 @@ endforeach;
     {
         return array('<?=implode("', '", $pkeys)?>');
     }
-
+    
+<?php if (! $mixin || ! $relations_in_mixin): ?>
     public function getRelations()
     {
         return array();
     }
+<?php endif; ?>
 }

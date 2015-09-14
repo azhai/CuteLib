@@ -15,6 +15,7 @@ use \DateTime;
  */
 class Literal
 {
+    protected static $format = "'%s'";
     protected $value;
 
     public function __construct($value)
@@ -26,21 +27,26 @@ class Literal
     {
         return strval($this->value);
     }
+    
+    public static function quoteNull()
+    {
+        return 'NULL';
+    }
      
     public static function quote($value)
     {
-        $format = "'%s'";
         if (is_null($value)) {
-            $value = 'NULL';
+            return self::quoteNull();
         } else if ($value instanceof self) {
-            $value = strval($value);
-        } else if ($value instanceof DateTime) {
-            $value = sprintf($format, $value->format('Y-m-d H:i:s'));
-        } else if (is_string($value)) {
-            $value = sprintf($format, convert($value, 'UTF-8'));
-        } else {
-            $value = sprintf($format, strval($value));
+            return strval($value);
         }
-        return $value;
+        if ($value instanceof DateTime) {
+            $value = $value->format('Y-m-d H:i:s');
+        } else if (is_string($value)) {
+            $value = convert($value, 'UTF-8');
+        } else {
+            $value = strval($value);
+        }
+        return sprintf(self::$format, $value);
     }
 }

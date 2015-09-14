@@ -15,21 +15,20 @@ use \Cute\ORM\Relation;
  */
 class BelongsTo extends Relation
 {
-    protected $foreign_key = '';
+    protected $another_foreign_key = '';
     
-    public function __construct($model = '\\Cute\\ORM\\Model', $table = '',
-                                $foreign_key = '')
+    public function __construct($model = '', $another_foreign_key = '')
     {
-        parent::__construct($model, $table);
-        $this->foreign_key = $foreign_key;
+        parent::__construct($model);
+        $this->another_foreign_key = $another_foreign_key;
     }
     
-    public function getForeignKey($name = '')
+    public function getAnotherForeignKey($name)
     {
-        if (empty($this->foreign_key)) {
-            $this->foreign_key = $name . '_id';
+        if (empty($this->another_foreign_key)) {
+            $this->another_foreign_key = $name . '_id';
         }
-        return $this->foreign_key;
+        return $this->another_foreign_key;
     }
 
     public function relative($name, array& $result)
@@ -41,10 +40,10 @@ class BelongsTo extends Relation
         if (empty($pkeys)) {
             return array();
         }
-        $fkey = $this->getForeignKey($name);
+        $fkey = $this->getAnotherForeignKey($name);
         $values = $this->getAttrs($result, $fkey);
-        $query = $this->newQuery();
-        $query->combine(reset($pkeys), $values, true);
+        $mapper = $this->getMapper();
+        $mapper->combine(reset($pkeys), $values, true);
         $this->setAttrs($result, $values, $name, $fkey);
         return $values;
     }

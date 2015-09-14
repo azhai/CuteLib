@@ -6,7 +6,7 @@
         </testsuite>
     </testsuites>
     <logging>
-        <log type="json" target="./runtime/logs.json"/>
+        <log type="json" target="./logs/events.json"/>
     </logging>
     <php>
         <var name="DB_DSN" value="mysql:host=127.0.0.1;charset=utf8" />

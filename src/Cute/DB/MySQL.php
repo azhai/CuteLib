@@ -11,37 +11,76 @@ use \PDO;
 use \Cute\DB\Database;
 
 
-/**
- * Mysql数据库
- */
-class MysqlSchema
-{
-    protected $db = null;
-    protected $dbname = '';
-    protected $table = '';
 
-    public function __construct(Database& $db, $table)
+/**
+ * MySQL数据库
+ */
+class MySQL extends Database
+{
+    protected $port = 3306;
+    protected $charset = 'utf8';
+    protected $lower_table_name = null; //表明区分大小写时，是否强制小写处理
+
+    public function connect($dbname, $tblpre = '', $create = false)
     {
-        $this->db = $db;
-        $this->dbname = $db->getDBName();
-        $this->table = $db->getTableName($table, false);
+        $dsn = sprintf('mysql:host=%s;port=%d;charset=%s', $this->host, $this->port, $this->charset);
+        $options = array(
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::MYSQL_ATTR_INIT_COMMAND => sprintf("SET NAMES '%s'", $this->charset),
+        );
+        $this->pdo = new PDO($dsn, $this->user, $this->password, $options);
+        if ($create) {
+            $this->pdo->exec(sprintf("CREATE DATABASE IF NOT EXIST `%s`", $this->dbname));
+        }
+        $this->pdo->exec(sprintf("USE `%s`", $this->dbname));
+        $this->tblpre = $tblpre;
+        if (! array_key_exists($this->dbname, $this->past_sqls)) {
+            $this->past_sqls[$this->dbname] = array();
+        }
+        return $this;
     }
     
-    public function getLimitType()
+    public function needTableToLower()
     {
-        return DB::TYPE_LIMIT;
+        if (is_null($this->lower_table_name)) {
+            $sql = "SHOW Variables LIKE 'lower_case_table_names'";
+            $name_case = $this->fetch($sql, array(), 'Value');
+            $this->lower_table_name = intval($name_case) === 1;
+        }
+        return $this->lower_table_name;
     }
 
-    public function getPKey()
+    public function getTableName($table, $quote = false)
     {
+        $table_name = $this->tblpre . $table;
+        if ($this->needTableToLower()) {
+            $table_name = strtolower($table_name);
+        }
+        return $quote ? '`' . $table_name . '`' : $table_name;
+    }
+    
+    public function getLimit($length, $offset = 0)
+    {
+        if ($offset > 0) {
+            $limit = sprintf(" LIMIT %d, %d", $offset, $length);
+        } else {
+            $limit = sprintf(" LIMIT %d", $length);
+        }
+        return array("", $limit);
+    }
+
+    public function getPKey($table)
+    {
+        $table_name = $this->getTableName($table);
         $sql = "SELECT COLUMN_NAME FROM information_schema.COLUMNS"
             . " WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_KEY='PRI'";
-        $params = array($this->dbname, $this->table);
-        return $this->db->fetch($sql, $params, 0);
+        $params = array($this->dbname, $table_name);
+        return $this->fetch($sql, $params, 0);
     }
 
-    public function getColumns()
+    public function getColumns($table)
     {
+        $table_name = $this->getTableName($table);
         $columns = array(
             'COLUMN_NAME', 'COLUMN_DEFAULT', 'COLUMN_KEY', 'IS_NULLABLE',
             'COLUMN_TYPE', 'DATA_TYPE', 'CHARACTER_MAXIMUM_LENGTH',
@@ -50,8 +89,8 @@ class MysqlSchema
         $sql = "SELECT %s FROM information_schema.COLUMNS"
             . " WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION";
         $sql = sprintf($sql, implode(', ', $columns));
-        $params = array($this->dbname, $this->table);
-        if ($stmt = $this->db->query($sql, $params)) {
+        $params = array($this->dbname, $table_name);
+        if ($stmt = $this->query($sql, $params)) {
             $style = PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE;
             $result = $stmt->fetchAll($style, '\\Cute\\ORM\\Column');
             $stmt->closeCursor();
@@ -59,23 +98,25 @@ class MysqlSchema
         }
     }
     
-    public function isExists()
+    public function isExists($table)
     {
+        $table_name = $this->getTableName($table);
         $sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES"
             . " WHERE TABLE_NAME=? AND (TABLE_SCHEMA=? OR TABLE_CATALOG=?)";
-        $params = array($this->table, $this->dbname, $this->dbname);
-        $table = $this->db->fetch($sql, $params, 0);
-        return $this->db->getTableName($table, false) === $this->table;
+        $params = array($table_name, $this->dbname, $this->dbname);
+        $table = $this->fetch($sql, $params, 0);
+        return $table_name === $table;
     }
     
-    public function getCreateSQL($new_table, $same_db = false, $same_type = false)
+    public function getCreateSQL($table, $new_table, $same_db = false, $same_type = false)
     {
+        $table_name = $this->getTableName($table);
         if ($same_db) {
             $sql = "CREATE TABLE `%s` LIKE `%s`";
-            return sprintf($sql, $new_table, $this->table);
+            return sprintf($sql, $new_table, $table_name);
         } else if ($same_type) {
-            $create = sprintf("CREATE TABLE `%s`", $this->table);
-            $sql = $this->db->fetch("SHOW $create", array(), 'Create Table');
+            $create = sprintf("CREATE TABLE `%s`", $table_name);
+            $sql = $this->fetch("SHOW $create", array(), 'Create Table');
             $sql = preg_replace('/(AUTO_INCREMENT=\d+)/', 'AUTO_INCREMENT=1', $sql, 1);
             $create_if_not = sprintf("CREATE TABLE IF NOT EXISTS `%s`", $new_table);
             return str_replace($create, $create_if_not, $sql);

@@ -11,56 +11,50 @@ use \DateTime;
 use \PDO;
 use \PDOException;
 use \Cute\DB\Literal;
+use \Cute\Utility\Inflect;
+use \Cute\View\Templater;
+
 
 /**
  * 数据库
  */
-class Database
+abstract class Database
 {
-    const ACTION_READ = 'R';
-    const ACTION_WRITE = 'W';
-    const TYPE_UNSUPPORT = 0;
-    const TYPE_TOP = 1;
-    const TYPE_LIMIT = 2;
+    const DB_ACTION_READ = 'R';
+    const DB_ACTION_WRITE = 'W';
     
     protected $pdo = null;
+    protected $user = '';
+    protected $password = '';
     protected $dbname = '';
-    protected $prefix = '';
-    protected $lower_table_name = null; //表明区分大小写时，是否强制小写处理
+    protected $tblpre = '';
+    protected $host = '';
+    protected $port = 0;
+    protected $charset = '';
     protected $past_sqls = array();
 
-    public function __construct(PDO& $pdo, $dbname = '', $prefix = '')
+    public function __construct($user, $password, $dbname, $tblpre = '',
+                        $host = '127.0.0.1', $port = 0, $charset = '')
     {
-        $this->pdo = $pdo;
-        if ($dbname) {
-            $this->useDB($dbname, $prefix);
-        }
-    }
-
-    public function useDB($dbname, $prefix = '', $create = false)
-    {
-        assert(! is_null($this->pdo));
-        if ($create && $this->getDriverName() === 'mysql') {
-            $this->pdo->exec("CREATE DATABASE IF NOT EXIST `$dbname`");
-        }
-        $this->pdo->exec("USE `$dbname`");
+        $this->user = $user;
+        $this->password = $password;
         $this->dbname = $dbname;
-        $this->prefix = empty($prefix) ? '' : $prefix;
-        $this->lower_table_name = null;
-        if (! array_key_exists($this->dbname, $this->past_sqls)) {
-            $this->past_sqls[$this->dbname] = array();
+        $this->tblpre = $tblpre;
+        $this->host = $host;
+        if (intval($port) > 0) {
+            $this->port = intval($port);
         }
-        return $this;
+        if (! empty($charset)) {
+            $this->charset = $charset;
+        }
     }
 
     public function getPDO()
     {
+        if (! $this->pdo) {
+            $this->connect($this->dbname, $this->tblpre);
+        }
         return $this->pdo;
-    }
-
-    public function getDBName()
-    {
-        return $this->dbname;
     }
 
     public function getPastSQL($dbname = false, $offset = 0)
@@ -68,7 +62,7 @@ class Database
         if ($dbname === true || $dbname === '*') {
             return $this->past_sqls;
         }
-        $dbname = empty($dbname) ? $this->getDBName() : $dbname;
+        $dbname = empty($dbname) ? $this->dbname : $dbname;
         $sqls = $this->past_sqls[$dbname];
         $offset = empty($offset) ? 0 : - abs($offset);
         return $offset ? array_slice($sqls, $offset, null, true) : $sqls;
@@ -76,47 +70,9 @@ class Database
 
     public function getDriverName()
     {
-        assert(! is_null($this->pdo));
-        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        $driver = $this->getPDO()->getAttribute(PDO::ATTR_DRIVER_NAME);
         $driver = strtolower($driver);
         return $driver === 'dblib' ? 'sqlsrv' : $driver;
-    }
-    
-    public function needTableToLower()
-    {
-        if (is_null($this->lower_table_name)) {
-            $driver_name = $this->getDriverName();
-            if ($driver_name === 'mysql') {
-                $sql = "SHOW Variables LIKE 'lower_case_table_names'";
-                $name_case = $this->fetch($sql, array(), 'Value');
-                $this->lower_table_name = intval($name_case) === 1;
-            } else {
-                $this->lower_table_name = false;
-            }
-        }
-        return $this->lower_table_name;
-    }
-
-    public function getTableName($table, $quote = false)
-    {
-        $table_name = $this->prefix . $table;
-        $driver_name = $this->getDriverName();
-        if ($this->needTableToLower()) {
-            $table_name = strtolower($table_name);
-        }
-        if ($quote === false) {
-            return $table_name;
-        }
-        switch ($driver_name) {
-            case 'mysql':
-                $table_name = "`$table_name`";
-                break;
-            case 'sqlite':
-            case 'sqlsrv':
-                $table_name = "[$table_name]";
-                break;
-        }
-        return $table_name;
     }
     
     public function inline($param)
@@ -126,12 +82,13 @@ class Database
     
     public function quote($param)
     {
-        if (is_null($this->pdo) || is_null($param) ||
-                $param instanceof Literal || $param instanceof DateTime) {
+        if (is_null($param)) {
+            return Literal::quoteNull();
+        } else if ($param instanceof Literal || $param instanceof DateTime) {
             return Literal::quote($param);
         } else {
             $type = is_int($param) ? PDO::PARAM_INT : PDO::PARAM_STR;
-            return $this->pdo->quote($param, $type);
+            return $this->getPDO()->quote($param, $type);
         }
     }
 
@@ -146,19 +103,18 @@ class Database
 
     public function execute($sql, array $params = array())
     {
-        assert(! is_null($this->pdo));
         if (! empty($params)) {
             $sql = $this->embed($sql, $params);
         }
         try {
-            $result = $this->pdo->exec($sql);
+            $result = $this->getPDO()->exec($sql);
         } catch (PDOException $e) {
             $message = "SQL: $sql\n" . $e->getMessage();
             throw new PDOException($message);
         }
         if (SQL_VERBOSE) {
             $this->past_sqls[$this->dbname][] = array(
-                'act' => self::ACTION_WRITE, 'sql' => $sql,
+                'act' => self::DB_ACTION_WRITE, 'sql' => $sql,
             );
         }
         return $result;
@@ -166,9 +122,8 @@ class Database
 
     public function query($sql, array $params = array())
     {
-        assert(! is_null($this->pdo));
         try {
-            $stmt = $this->pdo->prepare($sql);
+            $stmt = $this->getPDO()->prepare($sql);
             if ($stmt->execute($params)) {
                 $stmt->setFetchMode(PDO::FETCH_ASSOC);
             }
@@ -180,7 +135,7 @@ class Database
         if (SQL_VERBOSE) {
             $sql = $this->embed($sql, $params);
             $this->past_sqls[$this->dbname][] = array(
-                'act' => self::ACTION_READ, 'sql' => $sql,
+                'act' => self::DB_ACTION_READ, 'sql' => $sql,
             );
         }
         return $stmt;
@@ -202,17 +157,33 @@ class Database
         }
     }
 
+    public function transact(callable $transaction)
+    {
+        $pdo = $this->getPDO();
+        if ($pdo->beginTransaction()) {
+            $args = func_get_args();
+            array_unshift($args, $this);
+            try {
+                $transaction($args);
+                $pdo->commit();
+            } catch (PDOException $e) {
+                $pdo->rollBack();
+            }
+        }
+    }
+
     public function listTables()
     {
-        if (empty($this->prefix)) {
-            $sql = sprintf("SHOW TABLES FROM %s", $this->getDBName());
+        if (empty($this->tblpre)) {
+            $sql = "SHOW TABLES FROM ?";
+            $param = $this->getDBName();
         } else {
-            $pattern = $this->quote(str_replace('_', '\_', $this->prefix) . '%');
-            $sql = sprintf("SHOW TABLES LIKE %s", $pattern);
+            $sql = "SHOW TABLES LIKE ?";
+            $param = str_replace('_', '\_', $this->tblpre) . '%';
         }
         $result = array();
-        if ($stmt = $this->query($sql)) {
-            $prelen = strlen($this->prefix);
+        if ($stmt = $this->query($sql, array($param))) {
+            $prelen = strlen($this->tblpre);
             while ($table = $stmt->fetchColumn(0)) {
                 $result[] = substr($table, $prelen);
             }
@@ -221,27 +192,9 @@ class Database
         return $result;
     }
 
-    public function transact(callable $transaction)
-    {
-        assert(! is_null($this->pdo));
-        if ($this->pdo->beginTransaction()) {
-            $args = func_get_args();
-            array_unshift($args, $this);
-            try {
-                $transaction($args);
-                $this->pdo->commit();
-            } catch (PDOException $e) {
-                $this->pdo->rollBack();
-            }
-        }
-    }
-
     public function readFields($table)
     {
-        $driver = $this->getDriverName();
-        $class = '\\Cute\\DB\\' . ucfirst($driver) . 'Schema';
-        $schema = new $class($this, $table);
-        $columns = $schema->getColumns();
+        $columns = $this->getColumns($table);
         $pkeys = array();
         $fields = array();
         foreach ($columns as $column) {
@@ -259,4 +212,66 @@ class Database
         }
         return compact('table', 'pkeys', 'fields');
     }
+
+    public function generateModel($dir, $table, $model = '',
+                                $ns = '', $singular = false)
+    {
+        if (empty($model)) {
+            $model = $singular ? Inflect::singularize($table) : $table;
+            $model = Inflect::camelize($model);
+        }
+        $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        if ($ns) {
+            $dir .= str_replace('\\', DIRECTORY_SEPARATOR, trim($ns));
+            if (! file_exists($dir)) {
+                mkdir($dir, 0777, true);
+            }
+        }
+        $filename = $dir . DIRECTORY_SEPARATOR . $model . '.php';
+        if (class_exists($ns . '\\' . $model)) {
+            return $filename;
+        }
+        $data = $this->readFields($table);
+        $data['name'] = $model;
+        $data['ns'] = $ns;
+        $data['mixin'] = null;
+        $data['relations_in_mixin'] = false;
+        $mixin = $ns . '\\' . $model . 'Mixin';
+        if (trait_exists($mixin, true)) {
+            foreach ($data['fields'] as $field => $default) {
+                if (property_exists($mixin, $field)) {
+                    unset($data['fields'][$field]);
+                }
+            }
+            $data['mixin'] = $mixin;
+            $data['relations_in_mixin'] = method_exists($mixin, 'getRelations');
+        }
+        $tpl = new Templater(SRC_ROOT);
+        ob_start();
+        $tpl->render('model_tpl.php', $data);
+        $content = "<?php\n\n" . trim(ob_get_clean());
+        file_put_contents($filename, $content);
+        return $filename;
+    }
+
+    public static function csvline($row, $ftb = "\t", $ltb = PHP_EOL,
+                                            $oeb = '"', $nrb = null)
+    {
+        foreach ($row as & $item) {
+            if (is_null($item)) {
+                $item = $nrb;
+            } else if (is_string($item)) {
+                if (strpbrk($item, " $ftb") !== false) {
+                    $item = "$oeb$item$oeb";
+                }
+            }
+        }
+        return implode($ftb, $row) . $ltb;
+    }
+    
+    abstract public function connect($dbname, $tblpre = '', $create = false);
+    
+    abstract public function getLimit($length, $offset = 0);
+    
+    abstract public function getColumns($table);
 }

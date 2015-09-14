@@ -11,20 +11,12 @@ return array(
         'login_url' => '/sign/in/',
         'logout_url' => '/sign/out/',
     ),
-    '\\PDO' => array(
-        'default' => array(
-            'dsn' => 'mysql:host=127.0.0.1;charset=utf8',
-            'user' => 'dba',
-            'password' => 'dba@#',
-            'options' => array(
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
-            ),
-        ),
-    ),
-    '\\Cute\\DB\\Database' => array(
+    '\\Cute\\DB\\MySQL' => array(
         'wordpress' => array(
-            '\\PDO' => 'default', 'dbname' => 'db_wordpress', 'tblpre' => 'wp_',
+            'user' => 'dba',
+            'password' => '',
+            'dbname' => 'db_wordpress',
+            'tblpre' => 'wp_',
         ),
     ),
     '\\Cute\\DB\\HandlerSocket' => array(

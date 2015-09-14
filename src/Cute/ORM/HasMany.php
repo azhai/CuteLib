@@ -8,6 +8,7 @@
 
 namespace Cute\ORM;
 use \Cute\ORM\Relation;
+use \Cute\DB\Database;
 use \Cute\Utility\Inflect;
 
 
@@ -19,19 +20,22 @@ class HasMany extends Relation
     protected $foreign_key = '';
     protected $is_unique = false;
     
-    public function __construct($model = '\\Cute\\ORM\\Model', $table = '',
-                                $foreign_key = '')
+    public function __construct($model = '', $foreign_key = '')
     {
-        parent::__construct($model, $table);
+        parent::__construct($model);
         $this->foreign_key = $foreign_key;
     }
-    
-    public function getForeignKey($name = '')
+
+    public function bind(Database& $db, $table = '')
     {
         if (empty($this->foreign_key)) {
-            $table_name = $this->query->getTable();
-            $this->foreign_key = Inflect::singularize($table_name) . '_id';
+            $this->foreign_key = Inflect::singularize($table) . '_id';
         }
+        return parent::bind($db, $table);
+    }
+    
+    public function getForeignKey()
+    {
         return $this->foreign_key;
     }
 
@@ -42,8 +46,8 @@ class HasMany extends Relation
         }
         $fkey = $this->getForeignKey();
         $values = $this->getAttrs($result);
-        $query = $this->newQuery();
-        $query->combine($fkey, $values, $this->is_unique);
+        $mapper = $this->getMapper();
+        $mapper->combine($fkey, $values, $this->is_unique);
         $default = $this->is_unique ? null : array();
         $this->setAttrs($result, $values, $name, false, $default);
         return $values;

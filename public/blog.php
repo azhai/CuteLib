@@ -11,7 +11,7 @@ class BlogHandler extends Handler
     {
         $query = $this->query('Post')->join();
         if ($title === false) {
-            $post = $query->orderBy('post_date DESC')->setPage(2, -1)->all();
+            $post = $query->orderBy('post_date DESC')->setPage(5)->all();
         } else {
             $post = $query->get($title, 'post_name');
         }

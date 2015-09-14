@@ -1,6 +1,6 @@
 <?php
 use \Cute\Handler;
-use \Cute\ORM\Query;
+use \Cute\ORM\Mapper;
 
 
 trait BlogQuery
@@ -9,32 +9,25 @@ trait BlogQuery
     protected $logger = null;
     protected $ns = 'Blog';
     
-    public function loadModels($ns, $dir)
+    public function init($method)
     {
-        if (file_exists($dir . '/' . $ns)) {
-            return $this->app->import($ns, $dir);
-        }
+        $this->db = $this->app->load('\\Cute\\DB\\MySQL', 'wordpress');
+        $dir = APP_ROOT . '/protected/models';
+        $this->app->import($this->ns, $dir);
         $tables = $this->db->listTables();
         foreach ($tables as $table) {
             $model = '';
             if (ends_with($table, 'meta')) {
                 $model = substr(ucfirst($table), 0, -4) . 'Meta';
             }
-            Query::generateModel($this->db, $table, $model, $ns, true);
+            $this->db->generateModel($dir, $table, $model, $this->ns, true);
         }
-        return $this->app->import($ns, $dir);
-    }
-    
-    public function init($method)
-    {
-        $this->db = $this->app->load('\\Cute\\DB\\Database', 'wordpress');
-        $this->loadModels($this->ns, APP_ROOT . '/protected/models');
         return parent::init($method);
     }
     
     public function query($model)
     {
-        return new Query($this->db, sprintf('\\%s\\%s', $this->ns, $model));
+        return new Mapper($this->db, sprintf('\\%s\\%s', $this->ns, $model));
     }
     
     public function logSQL()

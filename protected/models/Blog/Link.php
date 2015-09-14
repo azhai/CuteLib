@@ -37,7 +37,7 @@ class Link extends Model
     public function getRelations()
     {
         return array(
-            'owner' => new BelongsTo('\\Blog\\User', '', 'link_owner'),
+            'owner' => new BelongsTo('\\Blog\\User', 'link_owner'),
         );
     }
 }

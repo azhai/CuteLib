@@ -7,7 +7,8 @@
  */
 
 namespace Cute\ORM;
-use \Cute\ORM\Query;
+use \Cute\DB\Database;
+use \Cute\ORM\Mapper;
 
 
 /**
@@ -15,32 +16,33 @@ use \Cute\ORM\Query;
  */
 abstract class Relation
 {
-    protected $query = null;
+    protected $mapper = null;
     protected $model = '';
-    protected $table = '';
     
-    public function __construct($model = '\\Cute\\ORM\\Model', $table = '')
+    public function __construct($model = '')
     {
-        $this->model = $model;
-        $this->table = $table;
+        $this->model = empty($model) ? '\\Cute\\ORM\\Model' : $model;
     }
 
-    public function bind(Query& $query)
+    public function getModel()
     {
-        $this->query = $query;
+        return $this->model;
+    }
+
+    public function bind(Database& $db, $table = '')
+    {
+        $this->mapper = new Mapper($db, $this->model);
         return $this;
     }
 
-    public function newQuery($model = '', $table = '')
+    public function getMapper($model = '', $table = '')
     {
-        assert($db = $this->query->getDB());
-        if (empty($model)) {
-            $model = & $this->model;
+        if (empty($model) && empty($table)) {
+            return $this->mapper;
+        } else {
+            $db = $this->mapper->getDB();
+            return new Mapper($db, $model, $table);
         }
-        if (empty($table)) {
-            $table = $this->table;
-        }
-        return new Query($db, $model, $table);
     }
     
     protected function getAttrs(array& $result, $attr = false)

@@ -14,38 +14,51 @@ use \Cute\DB\Database;
 /**
  * MS SQLServer数据库
  */
-class MssqlSchema
+class SQLServer extends Database
 {
-    protected $db = null;
-    protected $dbname = '';
-    protected $table = '';
-
-    public function __construct(Database& $db, $table)
+    protected $port = 1433;
+    protected $charset = 'utf8';
+    
+    public function connect($dbname, $tblpre = '', $create = false)
     {
-        $this->db = $db;
-        $this->dbname = $db->getDBName();
-        $this->table = $db->getTableName($table, false);
+        $dsn = sprintf('dblib:host=%s;port=%d;charset=%s', $this->host, $this->port, $this->charset);
+        $this->pdo = new PDO($dsn, $this->user, $this->password);
+        $this->pdo->exec(sprintf("USE `%s`", $this->dbname));
+        $this->tblpre = $tblpre;
+        if (! array_key_exists($this->dbname, $this->past_sqls)) {
+            $this->past_sqls[$this->dbname] = array();
+        }
+        return $this;
+    }
+
+    public function getTableName($table, $quote = false)
+    {
+        $table_name = $this->tblpre . $table;
+        return $quote ? '[' . $table_name . ']' : $table_name;
     }
     
-    public function getLimitType()
+    public function getLimit($length, $offset = 0)
     {
-        return DB::TYPE_TOP;
+        $top = sprintf("TOP %d ", $length);
+        return array($top, "");
     }
 
-    public function getPKey()
+    public function getPKey($table)
     {
+        $table_name = $this->getTableName($table);
         $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.%s WHERE TABLE_SCHEMA='dbo'"
             . " AND TABLE_CATALOG=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION";
-        $params = array($this->dbname, $this->table);
-        $pkey = $this->db->fetch(sprintf($sql, 'KEY_COLUMN_USAGE'), $params, 0);
+        $params = array($this->dbname, $table_name);
+        $pkey = $this->fetch(sprintf($sql, 'KEY_COLUMN_USAGE'), $params, 0);
         if (empty($pkey)) {
-            $pkey = $this->db->fetch(sprintf($sql, 'COLUMNS'), $params, 0);
+            $pkey = $this->fetch(sprintf($sql, 'COLUMNS'), $params, 0);
         }
         return $pkey;
     }
 
-    public function getColumns()
+    public function getColumns($table)
     {
+        $table_name = $this->getTableName($table);
         $columns = array(
             'COLUMN_NAME', 'COLUMN_DEFAULT', 'COLUMN_KEY', 'IS_NULLABLE',
             'COLUMN_TYPE', 'DATA_TYPE', 'CHARACTER_MAXIMUM_LENGTH',
@@ -54,8 +67,8 @@ class MssqlSchema
         $sql = "SELECT %s FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='dbo'"
             . " AND TABLE_CATALOG=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION";
         $sql = sprintf($sql, implode(', ', $columns));
-        $params = array($this->dbname, $this->table);
-        if ($stmt = $this->db->query($sql, $params)) {
+        $params = array($this->dbname, $table_name);
+        if ($stmt = $this->query($sql, $params)) {
             $style = PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE;
             $result = $stmt->fetchAll($style, '\\Cute\\ORM\\Column');
             $stmt->closeCursor();
@@ -63,13 +76,14 @@ class MssqlSchema
         }
     }
     
-    public function isExists()
+    public function isExists($table)
     {
+        $table_name = $this->getTableName($table);
         $sql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='dbo'"
             . " AND TABLE_CATALOG=? AND TABLE_NAME=?";
         $params = array($this->dbname, $this->table);
-        $table = $this->db->fetch($sql, $params, 0);
-        return $this->db->getTableName($table, false) === $this->table;
+        $table = $this->fetch($sql, $params, 0);
+        return $table_name === $table;
     }
     
     public function getCreateSQL($new_table, $columns = array(), $same_db = false, $same_type = false)
@@ -173,7 +187,7 @@ EOD;
         @mkdir(dirname($fname), 0664, true);
         $fh = fopen($fname, 'wb');
         $lines = 0;
-        $sth = $this->db->query($sql);
+        $sth = $this->query($sql);
         while ($row = $sth->fetch()) {
             if (is_null($nrb)) {
                 fputcsv($fh, $row, $ftb, $oeb);

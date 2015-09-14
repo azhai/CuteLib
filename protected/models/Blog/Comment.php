@@ -42,9 +42,9 @@ class Comment extends Model
     {
         return array(
             'metas' => new HasMany('\\Blog\\CommentMeta'),
-            'post' => new BelongsTo('\\Blog\\Post', '', 'comment_post_ID'),
+            'post' => new BelongsTo('\\Blog\\Post', 'comment_post_ID'),
             'user' => new BelongsTo('\\Blog\\User'),
-            'taxonomies' => new ManyToMany('\\Blog\\TermTaxonomy', '',
+            'taxonomies' => new ManyToMany('\\Blog\\TermTaxonomy',
                             'object_id', 'term_taxonomy_id', 'term_relationships'),
         );
     }

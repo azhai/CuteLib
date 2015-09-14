@@ -75,7 +75,10 @@ class Website extends Application
             $route = $this->dispatch($path);
             $succor = null;
             foreach ($route['handlers'] as $handler) {
-                if ($handler && class_exists($handler, true)) {
+                if (empty($handler)) {
+                    continue;
+                }
+                if (is_string($handler) && class_exists($handler, true)) {
                     $handler = new $handler($succor);
                 }
                 if ($handler && is_callable($handler)) {

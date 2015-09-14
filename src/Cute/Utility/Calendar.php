@@ -7,12 +7,14 @@
  */
 
 namespace Cute\Utility;
+use \DateTime;
+use \DateTimeZone;
 
 
 /**
- * 日期
+ * 时间、历法
  */
-class Date extends \DateTime
+class Calendar extends DateTime
 {
     protected $timestamp = 0;
 
@@ -22,7 +24,7 @@ class Date extends \DateTime
     public function __construct($time = 'now', $timezone = null)
     {
         if (is_null($timezone) && $default = constant('DEFAULT_TIMEZONE')) {
-            $timezone = new \DateTimeZone($default);
+            $timezone = new DateTimeZone($default);
         }
         if (is_numeric($time)) {
             parent::__construct('now', $timezone);
@@ -30,6 +32,20 @@ class Date extends \DateTime
         } else {
             parent::__construct($time, $timezone);
         }
+    }
+    
+    /*
+     * 格式化为字符串，支持中文星期
+     */
+    public function format($format = 'Y-m-d H:i:s')
+    {
+        $result = parent::format($format);
+        if (strpos($format, '星期w') !== false) {
+            $weekdays = array('星期0'=>'星期日', '星期1'=>'星期一', '星期2'=>'星期二',
+                '星期3'=>'星期三', '星期4'=>'星期四', '星期5'=>'星期五', '星期6'=>'星期六');
+            $result = strtr($result, $weekdays);
+        }
+        return $result;
     }
     
     /**

@@ -10,9 +10,8 @@ use \Cute\ORM\HasMany;
  */
 class User extends Model
 {
+    use \Blog\UserMixin;
     protected $ID = NULL;
-    public $user_login = '';
-    protected $user_pass = '';
     public $user_nicename = '';
     public $user_email = '';
     public $user_url = '';
@@ -35,9 +34,9 @@ class User extends Model
     {
         return array(
             'metas' => new HasMany('\\Blog\\UserMeta'),
-            'posts' => new HasMany('\\Blog\\Post', '', 'post_author'),
+            'posts' => new HasMany('\\Blog\\Post', 'post_author'),
             'comments' => new HasMany('\\Blog\\Comment'),
-            'links' => new HasMany('\\Blog\\Link', '', 'link_owner'),
+            'links' => new HasMany('\\Blog\\Link', 'link_owner'),
         );
     }
 }
