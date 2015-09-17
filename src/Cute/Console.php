@@ -38,7 +38,7 @@ class Console extends Application
     /**
      * 初始化环境
      */
-    public function initialize()
+    public function initiate()
     {
         return $this;
     }

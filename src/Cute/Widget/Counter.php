@@ -7,14 +7,13 @@
  */
 
 namespace Cute\Widget;
-use \Cute\Widget\RedisCounter;
-use \Cute\Widget\FileCounter;
+use \Cute\Cache\Subject;
 
 
 /**
  * 全局计数器
  */
-abstract class Counter
+class Counter extends Subject
 {
     protected $name = '';
     protected $value = 0;
@@ -31,17 +30,20 @@ abstract class Counter
     }
 
     /**
-     * 创建实例，Redis优先
+     * 设置缓存，Redis优先
      */
-    public static function newInstance($name, $value = 0, $maxium = 0)
+    public function setCache($class = '\\Cute\\Cache\\RedisCache')
     {
-        $obj = new RedisCounter($name, $value, $maxium);
-        if (! $obj->connect()) {
-            $obj = new FileCounter($name, $value, $maxium);
-            $obj->connect();
-        }
-        $obj->readValue();
-        return $obj;
+        $cache = new $class($this->name);
+        $cache->share($this->value, 'intval');
+        $cache->initiate()->readData();
+        $this->attach($cache);
+        return $cache;
+    }
+    
+    public function findCaches()
+    {
+        return $this->observers;
     }
     
     /**
@@ -53,15 +55,7 @@ abstract class Counter
         if ($this->maxium > 0) {
             $this->value = $this->value % $this->maxium;
         }
-        $this->writeValue();
+        $this->notify(); //写入缓存
         return $this->value;
     }
-    
-    abstract public function connect();
-    
-    abstract public function readValue();
-    
-    abstract public function writeValue();
-    
-    abstract public function remove();
 }

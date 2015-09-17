@@ -10,3 +10,6 @@
 [submodule "vendor/Gregwar/Captcha"]
 	path = vendor/Gregwar/Captcha
 	url = https://github.com/Gregwar/Captcha.git
+[submodule "vendor/unirest"]
+	path = vendor/unirest
+	url = https://github.com/Mashape/unirest-php.git

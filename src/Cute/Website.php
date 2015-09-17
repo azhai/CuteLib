@@ -23,7 +23,7 @@ class Website extends Application
     /**
      * 初始化环境
      */
-    public function initialize()
+    public function initiate()
     {
         $router = Router::getCurrent();
         $this->install($router, array(
