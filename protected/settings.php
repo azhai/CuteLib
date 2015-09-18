@@ -14,7 +14,7 @@ return array(
     '\\Cute\\DB\\MySQL' => array(
         'wordpress' => array(
             'user' => 'dba',
-            'password' => '',
+            'password' => 'dba@#',
             'dbname' => 'db_wordpress',
             'tblpre' => 'wp_',
         ),

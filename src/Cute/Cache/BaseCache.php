@@ -28,7 +28,7 @@ abstract class BaseCache implements SplObserver
         return $this;
     }
     
-    public function update(SplSubject $subject)
+    public function update(SplSubject $subject = null)
     {
         if ($coerce = $this->coerce) {
             $this->data = $coerce($this->data);

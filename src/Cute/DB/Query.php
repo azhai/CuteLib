@@ -125,8 +125,8 @@ class Query
     {
         $op = empty($op) ? false : strtoupper($op);
         if (is_array($value)) {
-            if (substr_count($cond, '?') === count($value)) {
-                $this->constrains[] = "$field $op";
+            if (substr_count($op, '?') === count($value)) { //例如BETWEEN ? AND ?
+                $this->constrains[] = "$cond $op";
                 $this->parameters = array_merge($this->parameters, $value);
             } else {
                 $this->contain($cond, $value);

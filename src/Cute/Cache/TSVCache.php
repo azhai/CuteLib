@@ -26,7 +26,7 @@ class TSVCache extends FileCache
     public function readData()
     {
         $this->data = array();
-        $fh = fopen($filename, 'rb');
+        $fh = fopen($this->filename, 'rb');
         if ($fh === false) {
             return $this->data;
         }
@@ -44,7 +44,7 @@ class TSVCache extends FileCache
     public function writeData($part = false)
     {
         $size = 0;
-        $fh = fopen($filename, 'wb');
+        $fh = fopen($this->filename, 'wb');
         if ($fh === false) {
             return $size;
         }

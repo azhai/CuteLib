@@ -1,45 +1,40 @@
 <?php
 namespace Cutest\Widget;
 use \PHPUnit_Framework_TestCase as TestCase;
-use \Cute\Widget\FileCounter;
-use \Cute\Widget\RedisCounter;
+use \Cute\Widget\Counter;
 
 
 class CounterTest extends TestCase
 {
-    protected static $file_counter = null;
-    protected static $redis_counter = null;
+    protected static $counter = null;
     
     public static function setUpBeforeClass()
     {
-        self::$file_counter = new FileCounter('test_val', -1);
-        self::$file_counter->connect();
-        self::$file_counter->readValue();
-        self::$redis_counter = new RedisCounter('test_val', 0);
-        self::$redis_counter->connect();
-        self::$redis_counter->readValue();
+        self::$counter = new Counter('test_val', -1);
     }
     
     public static function tearDownAfterClass()
     {
-        self::$file_counter->remove();
-        self::$redis_counter->remove();
+        $caches = self::$counter->findCaches();
+        foreach ($caches as & $cache) {
+            $cache->removeData();
+        }
     }
 
-    public function test01TextIncrease()
+    public function test01RedisIncrease()
     {
-        $val = self::$file_counter->increase();
+        $cache = self::$counter->setCache('\\Cute\\Cache\\RedisCache');
+        $val = self::$counter->increase();
         $this->assertEquals(0, $val);
-        $val = self::$file_counter->increase();
-        $this->assertEquals(1, $val);
+        $this->assertEquals(0, $cache->readData());
     }
 
-    public function test02RedisIncrease()
+    public function test02TextIncrease()
     {
-        $val = self::$redis_counter->increase();
+        $cache = self::$counter->setCache('\\Cute\\Cache\\TextCache');
+        $val = self::$counter->increase();
         $this->assertEquals(1, $val);
-        $val = self::$redis_counter->increase(2);
-        $this->assertEquals(3, $val);
+        $this->assertEquals(1, $cache->readData());
     }
 }
 

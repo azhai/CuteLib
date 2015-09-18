@@ -31,7 +31,7 @@ namespace {
             $class = constant('APP_CLASS');
             $app = new $class($storage);
             $app->install($importer, array('import' => 'addNamespace'));
-            $app->initialize();
+            $app->initiate();
         }
         return $app;
     }

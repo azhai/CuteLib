@@ -23,6 +23,7 @@ class Mapper
     protected $table = '';
     protected $fetch_style = 0;
     protected $relations = array();
+    protected $nothing = false; //不查询，直接返回空
 
     public function __construct(Database& $db, $model = '', $table = '')
     {
@@ -95,6 +96,12 @@ class Mapper
         $this->getQuery()->setPage($page_size, $page_no, $total);
         return $this;
     }
+    
+    public function setNothing($nothing = true)
+    {
+        $this->nothing = $nothing;
+        return $this;
+    }
 
     public function join($name = '*')
     {
@@ -120,11 +127,15 @@ class Mapper
                         $or_cond = '', array& $args = array())
     {
         $db = $this->getDB();
-        $query = $this->getQuery();
-        $fetch_style = empty($fetch_style) ? $this->fetch_style : $fetch_style;
-        $fetch_args = array($fetch_style, $this->getModel());
-        $result = $query->select($db, $columns, 'fetchAll', $fetch_args, $or_cond, $args);
-        if ($result) {
+        if ($this->nothing) {
+            $result = array();
+        } else {
+            $query = $this->getQuery();
+            $fetch_style = empty($fetch_style) ? $this->fetch_style : $fetch_style;
+            $fetch_args = array($fetch_style, $this->getModel());
+            $result = $query->select($db, $columns, 'fetchAll', $fetch_args, $or_cond, $args);
+        }
+        if (is_array($result)) {
             $table = $this->getTable();
             foreach ($this->relations as $name => &$relation) {
                 $relation->bind($db, $table)->relative($name, $result);

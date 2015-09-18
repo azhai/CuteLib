@@ -1,8 +1,13 @@
 <?php
 use \Cute\Widget\Counter;
+use \Cute\Contrib\Shop\Amount;
 
 app()->route('/', function() {
-    $counter = Counter::newInstance('test_val');
+    $counter = new Counter('test_val');
+    $counter->setCache('\\Cute\\Cache\\RedisCache');
     $val = $counter->increase();
     var_dump($val);
+    $usd = new Amount(15, 'USD');
+    $cny = $usd->toCurrency('CNY');
+    var_dump($usd, $cny);
 });

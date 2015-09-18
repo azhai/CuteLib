@@ -6,6 +6,7 @@ defined('SRC_ROOT') or define('SRC_ROOT', APP_ROOT . '/src');
 defined('MINFILE') or define('MINFILE', SRC_ROOT . '/cutelib.php');
 require_once (is_readable(MINFILE) ? MINFILE : SRC_ROOT . '/bootstrap.php');
 
+
 $app = app(APP_ROOT . '/protected/settings.php');
 $app->import('Cute', SRC_ROOT);
 $app->import('Cutest', TEST_ROOT);
