@@ -14,16 +14,22 @@ namespace Cute\Cache;
  */
 class TSVCache extends FileCache
 {
-    protected $delimiter = ''; //列分隔符
+    protected $delimiter = "\t"; //列分隔符
     protected $ext = '.csv';
     
-    public function __construct($name, $dir = false, $delimiter = "\t")
+    public function __construct($name, $dir = false, $delimiter = '')
     {
         parent::__construct($name, $dir);
-        $this->delimiter = $delimiter;
+        if (! empty($delimiter)) {
+            $this->delimiter = $delimiter;
+        }
     }
     
-    public function readData()
+    /**
+     * @param int $at_least 最少列数
+     * @return array 行列二维数组
+     */
+    public function readData($at_least = 0)
     {
         $this->data = array();
         $fh = fopen($this->filename, 'rb');
@@ -32,8 +38,14 @@ class TSVCache extends FileCache
         }
         do {
             $line = fgetcsv($fh, 0, $this->delimiter);
-            if ($line === false) {
-                break;
+            if (is_null($line) || $line === false) {
+                break; //无效的文件指针返回NULL，碰到文件结束时返回FALSE
+            }
+            if (is_null($line[0])) {
+                $line = array(); //空行将被返回为一个包含有单个 null 字段的数组
+            }
+            if ($at_least > 0 && count($line) < $at_least) {
+                continue; //列数不足
             }
             $this->data[] = $line;
         } while (1);

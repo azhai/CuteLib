@@ -82,8 +82,10 @@ class Console extends Application
     
     public function write($text)
     {
+        $text = strval($text);
         if (func_num_args() > 1) {
-            $text = exec_function_array('sprintf', func_get_args());
+            $args = array_slice(func_get_args(), 1);
+            $text = vsprintf($text, $args);
         }
         return self::appendTo($text, $this->color, $this->outfile);
     }

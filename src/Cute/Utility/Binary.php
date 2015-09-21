@@ -24,7 +24,8 @@ namespace Cute\Utility;
  */
 class Binary
 {
-    protected $is_bom =  false;     //文件编码是否高位在前
+    use \Cute\Base\Deferring;
+    
     protected $filename = '';       //数据文件名
     protected $fp = null;           //文件字节流
     protected $term_size = 0;       //数据项定长，纯真IP库是4字节
@@ -33,17 +34,23 @@ class Binary
     protected $index_last = 0;      //最后一条索引位置
     protected $index_total = 0;     //索引数量
     
-    public function __construct($filename, $term_size = 4,
-                            $offset_size = 3, $is_bom = false)
+    public function __construct($filename = '', $term_size = 0, $offset_size = 0)
     {
         $this->filename = $filename;
-        $this->term_size = $term_size;
-        $this->offset_size = $offset_size;
-        $this->is_bom = $is_bom;
+        if ($term_size > 0) {
+            $this->term_size = $term_size;
+        }
+        if ($offset_size > 0) {
+            $this->offset_size = $offset_size;
+        }
     }
     
     public function initiate($action = 'read')
     {
+        if (empty($this->filename)) {
+            $this->fp = tmpfile(); //临时文件句柄
+            return $this;
+        }
         if (! file_exists($this->filename)) {
             @mkdir(dirname($this->filename), 0755, true);
             touch($this->filename, 0666);
@@ -53,15 +60,33 @@ class Binary
         return $this;
     }
 
+    /**
+     * 文件编码是否高位在前
+     */
     public function isBOM()
     {
-        return $this->is_bom;
+        return false;
+    }
+
+    /**
+     * 结束项是否紧跟在开始项之后
+     */
+    public function isStopNearStart()
+    {
+        return false;
+    }
+
+    public function getIndexSize()
+    {
+        $count = $this->isStopNearStart() ? 2 : 1;
+        return $this->term_size * $count + $this->offset_size;
     }
     
     public function close()
     {
         if ($this->fp) {
             fclose($this->fp);
+            $this->fp = null; //必须，避免重复关闭
         }
     }
     
@@ -158,8 +183,8 @@ class Binary
      */
     public function readNumber($bytes = 3)
     {
-        $hexes = $this->readHex($bytes);
-        return intval($hexes, 16);
+        $hex = $this->readHex($bytes);
+        return intval($hex, 16);
     }
     
     /**
@@ -167,16 +192,15 @@ class Binary
      */
     public function readHeaders()
     {
-        if ($this->index_first <= 0) {
-            $this->index_first = $this->readInt();   #第一条索引区位置，4字节
-            $this->index_last = $this->readInt();          #最后一条索引区位置，4字节
-            $bytes = $this->index_last - $this->index_first;
-            $index_size = $this->term_size + $this->offset_size;
-            if ($index_size > 0) {
-                $this->index_total = floor($bytes / $index_size) + 1;
-            }
+        $this->seek(0);
+        $this->index_first = $this->readInt();   #第一条索引区位置，4字节
+        $this->index_last = $this->readInt();    #最后一条索引区位置，4字节
+        $bytes = $this->index_last - $this->index_first;
+        $index_size = $this->getIndexSize();
+        if ($index_size > 0) {
+            $this->index_total = floor($bytes / $index_size) + 1;
         }
-        return $this->index_first;
+        return $this->index_total;
     }
     
     /**
@@ -204,7 +228,7 @@ class Binary
         if (empty($bytes)) {
             $bytes = ceil(strlen($hex) / 2);
         }
-        $hex = str_pad($hex, $bytes * 2, '0', STR_PAD_LEFT);
+        $hex = self::padHex($hex, $bytes, 'left');
         if (! $this->isBOM() && $bytes > 1) {
             $hex = implode('', array_reverse(str_split($hex, 2)));
         }
@@ -234,8 +258,8 @@ class Binary
      */
     public function writeNumber($data, $bytes = 3, $return = false)
     {
-        $hexes = dechex(intval($data));
-        return $this->writeHex($hexes, $bytes, $return);
+        $hex = dechex(intval($data));
+        return $this->writeHex($hex, $bytes, $return);
     }
     
     /**
@@ -249,6 +273,32 @@ class Binary
         if ($version) {
             $this->writeString($version);
         }
+    }
+    
+    /**
+     * 写入偏移量
+     */
+    public function writeOffset($position)
+    {
+        return $this->writeNumber($position, $this->offset_size);
+    }
+    
+    /**
+     * 在末尾加入全部index数据
+     */
+    public function appendIndexes(Binary& $idat)
+    {
+        $this->index_first = $this->tell();
+        $bytes = $idat->tell();
+        if ($bytes === 0) {
+            $idat->seek(0, SEEK_END);
+            $bytes = $idat->tell();
+        }
+        $idat->seek(0);
+        $this->write($idat->read($bytes));
+        $index_size = $this->getIndexSize();
+        $this->index_last = $this->tell() - $index_size;
+        return $this->writeNumber($position, $this->term_size);
     }
 
     /**
@@ -282,5 +332,17 @@ class Binary
             }
         } while ($right - $left > 1);
         return $sign;
+    }
+    
+    /**
+     * 补齐16进制的位数
+     */
+    public static function padHex($hex, $bytes, $orient = 'left')
+    {
+        if (is_int($hex)) {
+            $hex = dechex($hex);
+        }
+        $pad_type = (strtolower($orient) === 'left') ? STR_PAD_LEFT : STR_PAD_RIGHT;
+        return str_pad($hex, $bytes * 2, '0', $pad_type);
     }
 }

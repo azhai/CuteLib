@@ -19,10 +19,13 @@ class Amount
     protected $integral = 0;
     protected $millesimal = 0;
 
-    public function __construct($value, $code = 'CNY')
+    public function __construct($value, Currency $currency = null)
     {
         $this->setValue($value);
-        $this->currency = Currency::getInstance($code);
+        if (is_null($currency)) {
+            $currency = Currency::getInstance();
+        }
+        $this->currency = $currency;
     }
 
     public function setValue($value)
@@ -59,13 +62,13 @@ class Amount
      */
     public function toCurrency($code = 'CNY')
     {
-        $currency = Currency::getInstance($code);
-        if ($currency === $this->currency) {
+        if ($this->currency->getCode() === $code) {
             return $this;
         }
+        $currency = Currency::getInstance($code);
         $rate = $this->currency->toRate($currency);
         $value = $this->getValue() * $rate;
-        return new self($value, $code);
+        return new self($value, $currency);
     }
 
     public function getCurrencyCode()
