@@ -14,6 +14,13 @@ namespace {
     defined('ERROR_LEVEL') or define('ERROR_LEVEL', E_ALL & ~ E_DEPRECATED & ~ E_NOTICE);
     @error_reporting(ERROR_LEVEL);
     
+    set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcxt) {
+        if (0 === error_reporting()) {
+            return false; // error was suppressed with the @-operator
+        }
+        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+    });
+    
     if (! class_exists('\\Cute\\Importer')) { //当不使用bootstrap.php文件时
         require_once SRC_ROOT . '/Cute/Importer.php';
     }

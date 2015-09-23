@@ -45,6 +45,14 @@ class Binary
         }
     }
     
+    public function close()
+    {
+        if ($this->fp) {
+            fclose($this->fp);
+            $this->fp = null; //必须，避免重复关闭
+        }
+    }
+    
     public function initiate($action = 'read')
     {
         if (empty($this->filename)) {
@@ -80,14 +88,6 @@ class Binary
     {
         $count = $this->isStopNearStart() ? 2 : 1;
         return $this->term_size * $count + $this->offset_size;
-    }
-    
-    public function close()
-    {
-        if ($this->fp) {
-            fclose($this->fp);
-            $this->fp = null; //必须，避免重复关闭
-        }
     }
     
     /**

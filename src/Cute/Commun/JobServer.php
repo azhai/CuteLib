@@ -12,8 +12,6 @@ use \Cute\Base\Mocking;
 defined('GEARMAN_SUCCESS') or define('GEARMAN_SUCCESS', 0);
 
 
-class WorkerException extends \Exception {}
-
 
 class Job
 {
@@ -28,6 +26,12 @@ class Job
     {
         return $this->json;
     }
+    
+    public function worknorm()
+    {
+        $json = $this->workload();
+        return json_decode($json, true);
+    }
 }
 
 
@@ -39,23 +43,32 @@ class JobServer
 {
     use \Cute\Base\Deferring;
     
-    public $worker_file = ''; // 备用worker文件
-    public $callbacks = array();
+    protected static $instance = null;
+    protected $worker_file = ''; // 备用worker文件
+    protected $callbacks = array();
     protected $host = '';
-    protected $timeout = -1;  //单位：milliseconds(1/1000 second)
+    protected $port = 4730;
+    protected $timeout = 0;  //单位：milliseconds(1/1000 second)
     protected $client = null;
     protected $worker = null;
 
     /**
      * 构造函数，给出ServerIP，默认端口4730
      */
-    public function __construct($host = '127.0.0.1', $timeout = -1, $worker_file = false)
+    protected function __construct($host, $port)
     {
         $this->host = $host;
-        $this->timeout = $timeout;
-        if (! empty($worker_file)) {
-            $this->worker_file = $worker_file;
+        $this->port = intval($port);
+    }
+    
+    public static function getInstance($host = '127.0.0.1',
+                                $port = 4730, $timeout = 0)
+    {
+        if (! self::$instance) {
+            self::$instance = new self($host, $port);
+            self::$instance->setTimeout($timeout);
         }
+        return self::$instance;
     }
 
     public function close()
@@ -64,31 +77,43 @@ class JobServer
         unset($this->worker);
         unset($this->callbacks);
     }
-    
-    public function call($name, $json)
+
+    public function setTimeout($timeout = 0)
     {
-        $client = $this->getClient();
-        $result = @exec_method_array($client, 'doNormal', array($name, $json));
-        if ($client->returnCode() !== GEARMAN_SUCCESS) {
-            throw new WorkerException($client->error());
+        $this->timeout = intval($timeout);
+        return $this;
+    }
+
+    public function setWorkerFile($worker_file)
+    {
+        $this->worker_file = $worker_file;
+        return $this;
+    }
+    
+    public function standIn($name, $json)
+    {
+        if ($this->worker_file) {
+            defined('WORKER_RUNNING') or define('WORKER_RUNNING', true); //防止worker运行
+            require $this->worker_file; //不能使用require_once
         }
-        return $result;
+        if ($callback = self::$instance->$name) {
+            $job = new Job($json);
+            return $callback($job);
+        }
     }
     
     public function __call($name, $args)
     {
         $json = json_encode($args);
+        $client = $this->getClient();
+        if ($client instanceof Mocking) {
+            return $this->standIn($name, $json);
+        }
         try {
-            $result = $this->call($name, $json);
-        } catch (WorkerException $e) { //调用备用函数
-            if ($this->worker_file) {
-                defined('WORKER_RUNNING') or define('WORKER_RUNNING', true); //防止worker运行
-                require_once $this->worker_file;
-            }
-            if ($this && $callback = $this->$name) {
-                $job = new Job($json);
-                $result = $callback($job);
-            }
+            $result = $client->doNormal($name, $json);
+            assert($client->returnCode() === GEARMAN_SUCCESS);
+        } catch (\Exception $e) { //调用备用函数
+            $result = $this->standIn($name, $json);
         }
         return $result;
     }
@@ -112,7 +137,7 @@ class JobServer
         if (! $this->client) {
             if (class_exists('\\GearmanClient')) {
                 $this->client = new \GearmanClient();
-                $this->client->addServer($this->host);
+                $this->client->addServer($this->host, $this->port);
             } else {
                 $this->client = Mocking::mock();
             }
@@ -128,7 +153,7 @@ class JobServer
         if (! $this->worker) {
             if (class_exists('\\GearmanWorker')) {
                 $this->worker = new \GearmanWorker();
-                $this->worker->addServer($this->host);
+                $this->worker->addServer($this->host, $this->port);
             } else {
                 $this->worker = Mocking::mock();
             }

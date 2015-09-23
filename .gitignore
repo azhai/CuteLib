@@ -8,5 +8,5 @@ src/GTAGS
 src/GRTAGS
 runtime/*
 runtime/*/*.txt
-test/logs/*
+test/logs/
 

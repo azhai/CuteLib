@@ -213,7 +213,7 @@ class Bale
     {
         while ($index--) {
             $type = $this->tokens[$index][0];
-            if ($type == T_CLASS)
+            if ($type == T_CLASS || $type == T_INTERFACE || $type == T_TRAIT)
                 return true;
             if ($type == T_FUNCTION)
                 return false;
