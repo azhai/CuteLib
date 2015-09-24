@@ -40,7 +40,7 @@ class Storage extends ArrayObject
      */
     public function getItem($name, $default = null)
     {
-        $item = $this->offsetGet($name);
+        $item = @$this->offsetGet($name);
         return is_null($item) ? $default : $item;
     }
 
