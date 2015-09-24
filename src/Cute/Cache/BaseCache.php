@@ -20,6 +20,12 @@ abstract class BaseCache implements SplObserver
     protected $ttl = 0; //失效时间
     protected $coerce = false;
     
+    public function setExpire($ttl)
+    {
+        $this->ttl = intval($ttl);
+        return $this;
+    }
+    
     public function share(&$data, $coerce = false, $ttl = 0)
     {
         $this->data = & $data;

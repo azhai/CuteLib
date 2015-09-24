@@ -26,7 +26,7 @@ class Locale
             $locale_dir = APP_ROOT . '/protected/locales';
         }
         $this->locale_dir = $locale_dir;
-        $this->timezone = $timezone;
+        $this->setTimezone($timezone);
     }
     
     public function detectLanguage()

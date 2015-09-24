@@ -52,4 +52,16 @@ class NestedSet extends Relation
         }
         return $result;
     }
+    
+    public function exchange(& $node, & $another)
+    {
+    }
+    
+    public function append(& $node)
+    {
+    }
+    
+    public function remove(& $node)
+    {
+    }
 }

@@ -8,7 +8,7 @@
 
 namespace Cute\Logging;
 use \Cute\Context\Input;
-use \Cute\View\Templater;
+use \Cute\Utility\Word;
 
 
 /**
@@ -44,7 +44,7 @@ abstract class Logger
     public static function format($message, array $context = array())
     {
         $content = is_null($message) ? '' : (string) $message;
-        return Templater::replaceWith($content, $context, '{', '}');
+        return Word::replaceWith($content, $context, '{', '}');
     }
     
     public static function getClientIP()

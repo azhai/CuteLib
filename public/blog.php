@@ -37,6 +37,6 @@ class BlogUserHandler extends Handler
     }
 }
 
-app()->route('/', BlogHandler);
-app()->route('/<string>/', BlogHandler);
-app()->route('/user/<string>/', BlogUserHandler);
+app()->route('/', 'BlogHandler');
+app()->route('/<string>/', 'BlogHandler');
+app()->route('/user/<string>/', 'BlogUserHandler');

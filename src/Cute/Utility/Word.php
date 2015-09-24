@@ -11,9 +11,17 @@ namespace Cute\Utility;
 
 /**
  * 单词转换
+ * NOTICE:
+ *      mb_strlen('〇一二三四五六七八九十百千万亿') = 45
+ *      mb_strlen('〇一二三四五六七八九十百千万亿', 'UTF-8') = 15
+ *      mb_strwidth('〇一二三四五六七八九十百千万亿') = 45
+ *      mb_strwidth('〇一二三四五六七八九十百千万亿', 'UTF-8') = 30
  */
 class Word
 {
+    public static $digits = '0123456789';
+    public static $chars = '〇一二三四五六七八九十百千万亿';
+    public static $caps = '零壹贰叁肆伍陆柒捌玖拾佰仟萬億';
     protected $content = '';
 
     /**
@@ -22,6 +30,79 @@ class Word
     public function __construct($content = '')
     {
         $this->content = $content;
+    }
+
+    /**
+     * 含有非ASCII字符
+     */
+    public static function hasNonASCII($string)
+    {
+        return preg_match('/[^\x20-\x7f]/', $string);
+    }
+    
+    /**
+     * UTF-8的汉字切分
+     */
+    public static function mbStrSplit($string)
+    {
+        $width = self::hasNonASCII($string) ? 3 : 1;
+        return str_split($string, $width);
+    }
+    
+    /**
+     * UTF-8的汉字替换
+     */
+    public static function mbStrtr($string, $from, $to)
+    {
+        $from = self::mbStrSplit($from);
+        $to = self::mbStrSplit($to);
+        return str_replace($from, $to, $string);
+    }
+    
+    /**
+     * 汉字转中文
+     */
+    public static function num2char($num, $capital = false)
+    {
+        $alts = $capital ? self::$caps : self::$chars;
+        return self::mbStrtr(strval($num), self::$digits, $alts);
+    }
+    
+    public static function spell($number, $capital = false)
+    {
+        $formatter = new \NumberFormatter('zh_CN',
+                        \NumberFormatter::SPELLOUT);
+        $sentence = $formatter->format($number);
+        if ($capital) {
+            $sentence = self::mbStrtr($sentence, self::$chars, self::$caps);
+        }
+        return $sentence;
+    }
+
+    /**
+     * 将内容字符串中的变量替换掉
+     * @param string $content 内容字符串
+     * @param array $context 变量数组
+     * @param string $prefix 变量前置符号
+     * @param string $subfix 变量后置符号
+     * @return string 当前内容
+     */
+    public static function replaceWith($content, array $context = array(),
+                                            $prefix = '', $subfix = '')
+    {
+        if (empty($context)) {
+            return $content;
+        }
+        if (empty($prefix) && empty($subfix)) {
+            $replacers = & $context;
+        } else {
+            $replacers = array();
+            foreach ($context as $key => & $value) {
+                $replacers[$prefix . $key . $subfix] = $value;
+            }
+        }
+        $content = strtr($content, $replacers);
+        return $content;
     }
     
     /**
@@ -55,14 +136,6 @@ class Word
             $gen_length = min($length, $gen_length);
         }
         return $buffer;
-    }
-
-    /**
-     * 含有非ASCII字符
-     */
-    public function hasNonASCII()
-    {
-        return preg_match('/[^\x20-\x7f]/', $this->content);
     }
 
     /**
