@@ -19,7 +19,7 @@ namespace {
             return false; // error was suppressed with the @-operator
         }
         throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-    });
+    }, E_WARNING | E_CORE_WARNING | E_COMPILE_WARNING); //只拦截警告，并以异常形式抛出
     
     if (! class_exists('\\Cute\\Importer')) { //当不使用bootstrap.php文件时
         require_once SRC_ROOT . '/Cute/Importer.php';

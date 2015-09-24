@@ -7,6 +7,7 @@
  */
 
 namespace Cute\Contrib\Shop;
+use \Cute\Utility\Word;
 use \Cute\Contrib\Shop\Currency;
 
 
@@ -16,8 +17,8 @@ use \Cute\Contrib\Shop\Currency;
 class Amount
 {
     protected $currency = null;
-    protected $integral = 0;
-    protected $millesimal = 0;
+    protected $integral = 0;    //元 x1.0
+    protected $millesimal = 0;  //厘 x0.001
 
     public function __construct($value, Currency $currency = null)
     {
@@ -31,7 +32,8 @@ class Amount
     public function setValue($value)
     {
         $this->integral = intval($value);
-        $this->millesimal = round(floatval($value) * 1000 % 1000);
+        $millesimal = floatval($value) * 1000 % 1000;
+        $this->millesimal = intval(round($millesimal));
         if ($this->millesimal === 1000) { //可能四舍五入后刚好进位
             $this->integral += 1;
             $this->millesimal = 0;
@@ -69,6 +71,29 @@ class Amount
         $rate = $this->currency->toRate($currency);
         $value = $this->getValue() * $rate;
         return new self($value, $currency);
+    }
+
+    /**
+     * 大写金额
+     */
+    public function toCapital()
+    {
+        if ($this->currency->getCode() !== 'CNY') {
+            return;
+        }
+        $result = Word::spell($this->integral, true);
+        $result .= '圆';
+        $percent = intval($this->millesimal / 10);
+        if ($percent > 0) {
+            $dime = intval($percent / 10);
+            $result .= Word::num2char($dime, true) . '角';
+            if ($cent = intval($percent % 10)) {
+                $result .= Word::num2char($caps, true) . '分';
+            }
+        } else {
+            $result .= '整';
+        }
+        return $result;
     }
 
     public function getCurrencyCode()
