@@ -40,27 +40,27 @@ class Mapper
         $this->fetch_style = PDO::FETCH_CLASS;
         if (empty($model)) {
             $this->model = '\\Cute\\ORM\\Model';
-        } else {
-            $this->model = $model;
-            if (method_exists($this->model, '__set') ||
-                    method_exists($this->model, '__construct')) {
-                $this->fetch_style = $this->fetch_style | PDO::FETCH_PROPS_LATE;
-            }
-            if (empty($this->table)) {
-                $this->table = exec_method_array($this->model, 'getTable');
-            }
+            return $this;
+        }
+        $this->model = $model;
+        if (method_exists($this->model, '__set') ||
+                method_exists($this->model, '__construct')) {
+            $this->fetch_style = $this->fetch_style | PDO::FETCH_PROPS_LATE;
+        }
+        if (empty($this->table)) {
+            $this->table = exec_method_array($this->model, 'getTable');
         }
         return $this;
-    }
-
-    public function getDB()
-    {
-        return $this->db;
     }
 
     public function getModel()
     {
         return $this->model;
+    }
+    
+    public function getDB()
+    {
+        return $this->db;
     }
 
     public function getQuery()
@@ -80,6 +80,12 @@ class Mapper
     {
         $db = $this->getDB();
         return $db->getTableName($this->getTable(), $quote);
+    }
+    
+    public function getPKey()
+    {
+        $pkeys = exec_method_array($this->getModel(), 'getPKeys');
+        return empty($pkeys) ? null : reset($pkeys);
     }
     
     /**
@@ -147,18 +153,21 @@ class Mapper
     /**
      * 获取单个Model对象或null
      */
-    public function get($id, $key = false, $columns = '*', $table_name = '')
+    public function get($id, $key = false, $columns = '*')
     {
         if (empty($key)) {
-            $pkeys = exec_method_array($this->getModel(), 'getPKeys');
-            if (empty($pkeys)) {
+            $key = $this->getPKey();
+            if (empty($key)) {
                 return;
             }
-            $key = reset($pkeys);
         }
         $this->getQuery()->filter($key, $id)->setPage(1, 1);
         $objs = $this->all($columns);
-        return count($objs) > 0 ? reset($objs) : null;
+        if (count($objs) > 0) {
+            return reset($objs);
+        } else {
+            return exec_construct_array($this->getModel());
+        }
     }
     
     /**
@@ -198,5 +207,22 @@ class Mapper
             $result = exec_method_array($query, $name, $args);
             return ($result instanceof Query) ? $this : $result;
         }
+    }
+    
+    public function add(& $object)
+    {
+        assert($object instanceof $this->model);
+        $db = $this->getDB();
+        $query = new Query($this->getTable());
+        $data = $object->toArray();
+        if ($object->isExists()) {
+            $pkey = $this->getPKey();
+            $query->filter($pkey, $object->getID());
+            $query->update($db, $data);
+        } else {
+            $id = $query->insert($db, $data);
+            $object->setID($id);
+        }
+        return $this;
     }
 }

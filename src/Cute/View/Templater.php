@@ -35,32 +35,6 @@ class Templater
     }
 
     /**
-     * 将内容字符串中的变量替换掉
-     * @param string $content 内容字符串
-     * @param array $context 变量数组
-     * @param string $prefix 变量前置符号
-     * @param string $subfix 变量后置符号
-     * @return string 当前内容
-     */
-    public static function replaceWith($content, array $context = array(),
-                                            $prefix = '', $subfix = '')
-    {
-        if (empty($context)) {
-            return $content;
-        }
-        if (empty($prefix) && empty($subfix)) {
-            $replacers = & $context;
-        } else {
-            $replacers = array();
-            foreach ($context as $key => & $value) {
-                $replacers[$prefix . $key . $subfix] = $value;
-            }
-        }
-        $content = strtr($content, $replacers);
-        return $content;
-    }
-
-    /**
      * 设置模板目录
      * @param string $source_dir 模板目录
      */

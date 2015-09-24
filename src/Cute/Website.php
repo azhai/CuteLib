@@ -9,6 +9,7 @@
 namespace Cute;
 use \Cute\Application;
 use \Cute\Context\Router;
+use \Cute\Context\SessionHandler;
 
 
 /**
@@ -19,6 +20,18 @@ class Website extends Application
     protected $method = '';
     public $url = '';
     public $rule = '';
+    
+    /**
+     * 发送Header
+     */
+    public static function header($name, $value, $replace = true)
+    {
+        if (! headers_sent()) {
+            $content = empty($name) ? '' : strval($name) . ': ';
+            $content .= is_array($value) ? implode(' ', $value) : strval($value);
+            @header($content, $replace);
+        }
+    }
 
     /**
      * 初始化环境
@@ -32,13 +45,18 @@ class Website extends Application
         $this->install('\\Cute\\Context\\Input', array(
             'getClientIP', 'input' => 'getInstance',
         ));
+        $sess_handler = new SessionHandler();
+        $this->install($sess_handler, array(
+            'setExpire', 'share', 'update'
+        ));
         return $this;
     }
     
-    public function route($path, $handler)
+    public function route()
     {
         $router = Router::getCurrent();
-        return $router->route($path, $handler);
+        $args = func_get_args();
+        return exec_method_array($router, 'route', $args);
     }
     
     public function mount($directory, $wildcard = '*.php')
@@ -70,7 +88,7 @@ class Website extends Application
     public function run()
     {
         $route_key = $this->getConfig('route_key', 'r');
-        $path = $this->input('GET')->get($route_key, '/');
+        $path = $this->input('GET')->pop($route_key, '/');
         try {
             $route = $this->dispatch($path);
             $succor = null;
@@ -82,7 +100,7 @@ class Website extends Application
                     $handler = new $handler($succor);
                 }
                 if ($handler && is_callable($handler)) {
-                    $succor = & $handler;
+                    $succor = $handler;
                 }
             }
             if ($succor) {

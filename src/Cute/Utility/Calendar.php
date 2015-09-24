@@ -7,6 +7,7 @@
  */
 
 namespace Cute\Utility;
+use \Cute\Utility\Word;
 use \DateTime;
 use \DateTimeZone;
 
@@ -23,7 +24,7 @@ class Calendar extends DateTime
      */
     public function __construct($time = 'now', $timezone = null)
     {
-        if (is_null($timezone) && $default = constant('DEFAULT_TIMEZONE')) {
+        if (! is_null($timezone)) {
             $timezone = new DateTimeZone($default);
         }
         if (is_numeric($time)) {
@@ -37,13 +38,14 @@ class Calendar extends DateTime
     /*
      * 格式化为字符串，支持中文星期
      */
-    public function format($format = 'Y-m-d H:i:s')
+    public function speak($format = '%F %T')
     {
-        $result = parent::format($format);
-        if (strpos($format, '星期w') !== false) {
-            $weekdays = array('星期0'=>'星期日', '星期1'=>'星期一', '星期2'=>'星期二',
-                '星期3'=>'星期三', '星期4'=>'星期四', '星期5'=>'星期五', '星期6'=>'星期六');
-            $result = strtr($result, $weekdays);
+        $format = str_replace('%v', '{%w}', $format);
+        $result = strftime($format, $this->getTimestamp());
+        if (strpos($format, '{%w}') !== false) {
+            static $weekdays = array('0'=>'日', '1'=>'一', '2'=>'二',
+                '3'=>'三', '4'=>'四', '5'=>'五', '6'=>'六');
+            $result = Word::replaceWith($result, $weekdays, '{', '}');
         }
         return $result;
     }
@@ -105,7 +107,7 @@ class Calendar extends DateTime
     }
 
     /**
-     * 快速计算公式计算立春是2月几日（3/4/5/6），只符合最近三个世纪
+     * 快速计算公式计算立春是2月几日（3/4/5），只符合最近三个世纪
      */
     public static function getSpringDay($year)
     {
@@ -118,7 +120,7 @@ class Calendar extends DateTime
     }
     
     /**
-     * 获得生肖index，以立春为分界线
+     * 获得生肖index，以立春为界
      */
     public function getBirthAnimalIndex()
     {

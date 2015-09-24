@@ -69,4 +69,15 @@ class Model
         $id = $this->getID();
         return $id !== 0 && ! is_null($id);
     }
+
+    public function toArray()
+    {
+        $data = get_object_vars($this);
+        foreach ($data as $key => $value) {
+            if (starts_with($key, '_')) {
+                unset($data[$key]);
+            }
+        }
+        return $data;
+    }
 }

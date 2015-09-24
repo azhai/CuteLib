@@ -19,7 +19,7 @@ class Input
     protected static $instances = array();
     protected static $client_ip = '-';
     protected $input_type = null;   // INPUT类型
-    protected $data = array();  // 过滤后数据
+    protected $data = array();      // 过滤后数据
     protected $done = false;        // 是否读取过全部数据
 
     /**
@@ -67,8 +67,8 @@ class Input
     public static function request($key, $default = null, $type = false)
     {
         $post = self::getInstance('POST');
-        $value = $post->get($key, $default, $type);
-        if ($value === $default) {
+        $value = $post->get($key, null, $type);
+        if (is_null($value)) {
             $get = self::getInstance('GET');
             $value = $get->get($key, $default, $type);
         }
@@ -177,6 +177,12 @@ class Input
     public function get($key, $default = null, $type = false)
     {
         if (! array_key_exists($key, $this->data)) {
+            if ($this->done === true) {
+                if (! is_array($default)) {
+                    $default = self::coerce($default, $type);
+                }
+                return $default;
+            }
             if (is_array($default)) {
                 $type = array($key => array(
                     'filter' => $type, 'flags' => FILTER_FORCE_ARRAY
@@ -193,6 +199,17 @@ class Input
         }
         return $this->data[$key];
     }
+    
+    /**
+     * 获取其中单个键的值，并抛出它
+     */
+    public function pop($key, $default = null, $type = false)
+    {
+        $this->all();
+        $value = $this->get($key, $default, $type);
+        unset($this->data[$key]);
+        return $value;
+    }
 
     /**
      * 获取全部的值
@@ -200,19 +217,16 @@ class Input
      *              当$types是关联数组时，按键名对应类型过滤，否则，全部使用单一类型过滤
      * @return array 获取全部的值，关联数组
      */
-    public function all($key = false, $types = false)
+    public function all($types = false)
     {
         if ($this->done === false) {
             $this->data = $this->filterArrayData($types);
+            $this->done = true;
         }
         if (is_null($this->data)) {
             //当input数组为空时，filter_input_array()返回null
             $this->data = array();
         }
-        if ($key === false) {
-            return $this->data;
-        } else if (array_key_exists($key, $this->data)) {
-            return $this->data[$key];
-        }
+        return $this->data;
     }
 }
