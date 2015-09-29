@@ -9,6 +9,7 @@
 namespace Cute;
 use \Cute\Application;
 use \Cute\Context\Router;
+use \Cute\Context\SessionHandler;
 
 
 /**
@@ -31,6 +32,10 @@ class Website extends Application
         ));
         $this->install('\\Cute\\Context\\Input', array(
             'getClientIP', 'input' => 'getInstance',
+        ));
+        $sess_handler = new SessionHandler();
+        $this->install($sess_handler, array(
+            'setExpire', 'share', 'update'
         ));
         return $this;
     }
