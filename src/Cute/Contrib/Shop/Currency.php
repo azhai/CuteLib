@@ -4,10 +4,13 @@
  * @url     https://github.com/azhai/CuteLib
  * @author  Ryan Liu <azhai@126.com>
  * @copyright 2013-2015 MIT License.
+ *
+ * 汇率牌价  http://stock.finance.sina.com.cn/forex/api/openapi.php/ForexService.getAllBankForex
  */
 
 namespace Cute\Contrib\Shop;
 use \Cute\Cache\TSVCache;
+
 
 
 /**

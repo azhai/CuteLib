@@ -207,6 +207,12 @@ abstract class Database
                 $default = intval($default);
             } else if ($cate === 'float') {
                 $default = floatval($default);
+            } else if (! $column->isNullable()) {
+                if ($cate === 'char') {
+                    $default = '';
+                } else if ($cate === 'datetime') {
+                    $default = '0000-00-00 00:00:00';
+                }
             }
             $fields[$column->name] = $default;
         }

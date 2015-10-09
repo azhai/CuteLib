@@ -110,7 +110,7 @@ class Router
      *            控制器
      * @return string
      */
-    public function route($path, & $handler)
+    public function route($path, $handler)
     {
         $rule = self::compileUrl($path);
         if (func_num_args() > 2) {
@@ -193,7 +193,7 @@ class Router
     /**
      * 发送HTTP错误
      */
-    public function abort($code = 500)
+    public static function abort($code = 500)
     {
         return @http_response_code($code);
     }
@@ -204,7 +204,7 @@ class Router
      * @param bool $permanent 是否永久跳转(HTTP 301)
      * @return 进入新页面
      */
-    public function redirect($to_url = '', $permanent = false)
+    public static function redirect($to_url = '', $permanent = false)
     {
         $status_code = $permanent ? 301 : 302;
         @header('Location: ' . $to_url, true, $status_code);

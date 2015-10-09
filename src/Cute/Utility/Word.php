@@ -60,7 +60,7 @@ class Word
     }
     
     /**
-     * 汉字转中文
+     * 数字转为中文
      */
     public static function num2char($num, $capital = false)
     {
@@ -68,6 +68,9 @@ class Word
         return self::mbStrtr(strval($num), self::$digits, $alts);
     }
     
+    /**
+     * 数值转为中文拼读
+     */
     public static function spell($number, $capital = false)
     {
         $formatter = new \NumberFormatter('zh_CN',
