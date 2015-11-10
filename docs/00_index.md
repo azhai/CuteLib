@@ -19,6 +19,6 @@ PHP的开发工具包，需要PHP v5.4及以上版本，包含：
 
 * [Logging](https://github.com/azhai/CuteLib/wiki/Logging/)  日志
 
-* [Bale](https://github.com/azhai/CuteLib/wiki/Bale/)  压缩PHP代码到一个文件
+* [Compressor](https://github.com/azhai/CuteLib/wiki/Compressor/)  压缩PHP代码到一个文件
 
 

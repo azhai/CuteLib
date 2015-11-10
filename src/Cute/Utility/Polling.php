@@ -1,9 +1,8 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute\Utility;
@@ -14,16 +13,16 @@ namespace Cute\Utility;
  */
 class Polling
 {
-    protected $channels = array();
+    protected $channels = [];
 
     /**
      * 构造函数
      */
-    public function __construct(array $channels = array())
+    public function __construct(array $channels = [])
     {
         $this->channels = $channels;
     }
-    
+
     /**
      * 随机循环
      */

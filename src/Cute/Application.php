@@ -1,32 +1,50 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute;
+
 use \Cute\Importer;
-use \Cute\Factory;
+use \Cute\Base\Factory;
 use \Cute\Base\Storage;
 
 
 /**
- * 应用程序
+ * 应用环境
  */
-abstract class Application
+class Application
 {
-    protected $shortcuts = array(); // 快捷方式
+    const APP_SECTION = 'app';
+
+    public static $app = null;
+    protected $import = null;
+    protected $storage = null; // 配置
+    protected $shortcuts = []; // 快捷方式
 
     /**
      * 构造函数
      */
-    public function __construct(Storage& $storage)
+    public function __construct(array $data = null)
     {
-        $this->install($storage, array('getConfig'));
-        $factory = new Factory($storage);
-        $this->install($factory, array('load'));
+        self::throwWarnings();
+        self::$app = $this;
+        $this->importer = Importer::getInstance();
+        $this->storage = new Storage($data);
+        $this->initiate();
+    }
+    
+    public static function throwWarnings()
+    {
+        //只拦截警告，并以异常形式抛出
+        set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcxt) {
+            if (0 === error_reporting()) {
+                return false; // error was suppressed with the @-operator
+            }
+            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        }, E_WARNING | E_CORE_WARNING | E_COMPILE_WARNING);
     }
 
     /**
@@ -34,9 +52,14 @@ abstract class Application
      */
     public function initiate()
     {
-        return $this;
+        $this->install($this->importer, [
+            'import' => 'addNamespace',
+            'importStrip' => 'addNamespaceStrip',
+        ]);
+        $factory = new Factory($this->storage);
+        $this->installRef($factory, ['create', 'load']);
     }
-    
+
     /**
      * 安装插件，并注册插件的一些方法
      */
@@ -45,11 +68,22 @@ abstract class Application
         foreach ($methods as $alias => $method) {
             //省略别名时，使用同名方法。PHP的方法名内部都是小写？
             $alias = strtolower(is_numeric($alias) ? $method : $alias);
-            $this->shortcuts[$alias] = array($plugin, $method);
+            $this->shortcuts[$alias] = [$plugin, $method];
         }
         return $this;
     }
-    
+
+    /**
+     * 安装插件引用，并注册插件的一些方法
+     */
+    public function installRef(& $plugin, array $methods)
+    {
+        foreach ($methods as $method) {
+            $this->shortcuts[strtolower($method)] = & $plugin;
+        }
+        return $this;
+    }
+
     /**
      * 使用已定义的插件
      */
@@ -57,10 +91,22 @@ abstract class Application
     {
         $name = strtolower($name); //PHP的方法名内部都是小写？
         if (isset($this->shortcuts[$name])) {
-            list($plugin, $method) = $this->shortcuts[$name];
-            return exec_method_array($plugin, $method, $args);
+            $shortcut = $this->shortcuts[$name];
+            if (is_array($shortcut)) {
+                @list($plugin, $name) = $shortcut;
+            } else {
+                $plugin = &$this->shortcuts[$name];
+            }
+            return exec_method_array($plugin, $name, $args);
         }
     }
-    
-    abstract public function run();
+
+    /**
+     * 获取公开配置信息
+     */
+    public function getConfig($key, $default = null)
+    {
+        $section = $this->storage->getSectionOnce(self::APP_SECTION);
+        return $section->getItem($key, $default);
+    }
 }

@@ -1,19 +1,26 @@
 <?php
-defined('APP_ROOT') or define('APP_ROOT', dirname(__DIR__));
-defined('SRC_ROOT') or define('SRC_ROOT', APP_ROOT . '/src');
-if (true) { //使用压缩文件？
-    defined('MINFILE') or define('MINFILE', SRC_ROOT . '/cutelib.php');
-    require_once (is_readable(MINFILE) ? MINFILE : SRC_ROOT . '/bootstrap.php');
-} else {
-    require_once (SRC_ROOT . '/bootstrap.php');
-}
+defined('CUTE_ROOT') or define('CUTE_ROOT', dirname(__DIR__));
+defined('APP_ROOT') or define('APP_ROOT', CUTE_ROOT . '/apps/Blog');
+defined('SRC_ROOT') or define('SRC_ROOT', CUTE_ROOT . '/src');
+defined('VENDOR_ROOT') or define('VENDOR_ROOT', CUTE_ROOT . '/vendor');
+require_once(SRC_ROOT . '/bootstrap.php');
 
+$settings = new \Cute\Cache\FileCache('settings', APP_ROOT);
+$app = new \Cute\Web\Site($settings->readData());
+$app->importStrip('Cute\\Contrib', CUTE_ROOT . '/contrib');
 
-$app = app(APP_ROOT . '/protected/settings.php');
-$app->route('/', function() {
-    echo "Hello World!\n";
+$app->route('/', function () {
+    $app = app();
+    $tpl = $app->load('tpl', 'default');
+    $tpl->updateGlobals([
+        'site_domain' => 'http://' . $_SERVER['HTTP_HOST'],
+        'site_title'  => $app->getConfig('site_title'),
+        'url_prefix'  => $app->getConfig('url_prefix'),
+        'asset_url'   => $app->getConfig('asset_url'),
+    ]);
+    return $tpl->render('catalog.php');
 });
 
-$app->mount(__DIR__, '*.php');
-$app->mount(__DIR__, '*/*.php');
+$app->expose(__DIR__, '*.php');
+$app->expose(__DIR__, '*/*.php');
 $app->run();

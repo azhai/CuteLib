@@ -1,5 +1,6 @@
 <?php
 namespace Cutest;
+
 use \PHPUnit_Framework_TestCase as TestCase;
 
 
@@ -32,7 +33,7 @@ class CommonTest extends TestCase
     public function test04ExecFunctionArray()
     {
         $this->assertTrue(function_exists('exec_function_array'));
-        $result = exec_function_array('strtolower', array(__FUNCTION__));
+        $result = exec_function_array('strtolower', [__FUNCTION__]);
         $this->assertEquals(strtolower(__FUNCTION__), $result);
         $args = range(11, 20);
         $result = exec_function_array(new Sample(), $args);
@@ -74,15 +75,15 @@ class Sample
         $this->data = func_get_args();
     }
 
-    public function __invoke($a, $b, $c, $d = 88, $e = 99)
+    public static function sum($a, $b, $c, $d = 88, $e = 99)
     {
-        $args = func_num_args() > 5 ? func_get_args() : array($a, $b, $c, $d, $e);
+        $args = func_num_args() > 5 ? func_get_args() : [$a, $b, $c, $d, $e];
         return array_sum($args);
     }
 
-    public static function sum($a, $b, $c, $d = 88, $e = 99)
+    public function __invoke($a, $b, $c, $d = 88, $e = 99)
     {
-        $args = func_num_args() > 5 ? func_get_args() : array($a, $b, $c, $d, $e);
+        $args = func_num_args() > 5 ? func_get_args() : [$a, $b, $c, $d, $e];
         return array_sum($args);
     }
 }

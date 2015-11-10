@@ -31,71 +31,71 @@ namespace Cute\Utility;
 
 class Inflect
 {
-    protected static $plural = array(
-        '/(quiz)$/i'               => "$1zes",
-        '/^(ox)$/i'                => "$1en",
-        '/([m|l])ouse$/i'          => "$1ice",
+    protected static $plural = [
+        '/(quiz)$/i' => "$1zes",
+        '/^(ox)$/i' => "$1en",
+        '/([m|l])ouse$/i' => "$1ice",
         '/(matr|vert|ind)ix|ex$/i' => "$1ices",
-        '/(x|ch|ss|sh)$/i'         => "$1es",
-        '/([^aeiouy]|qu)y$/i'      => "$1ies",
-        '/(hive)$/i'               => "$1s",
+        '/(x|ch|ss|sh)$/i' => "$1es",
+        '/([^aeiouy]|qu)y$/i' => "$1ies",
+        '/(hive)$/i' => "$1s",
         '/(?:([^f])fe|([lr])f)$/i' => "$1$2ves",
         '/(shea|lea|loa|thie)f$/i' => "$1ves",
-        '/sis$/i'                  => "ses",
-        '/([ti])um$/i'             => "$1a",
-        '/(tomat|potat|ech|her|vet)o$/i'=> "$1oes",
-        '/(bu)s$/i'                => "$1ses",
-        '/(alias)$/i'              => "$1es",
-        '/(octop)us$/i'            => "$1i",
-        '/(ax|test)is$/i'          => "$1es",
-        '/(us)$/i'                 => "$1es",
-        '/s$/i'                    => "s",
-        '/$/'                      => "s"
-    );
+        '/sis$/i' => "ses",
+        '/([ti])um$/i' => "$1a",
+        '/(tomat|potat|ech|her|vet)o$/i' => "$1oes",
+        '/(bu)s$/i' => "$1ses",
+        '/(alias)$/i' => "$1es",
+        '/(octop)us$/i' => "$1i",
+        '/(ax|test)is$/i' => "$1es",
+        '/(us)$/i' => "$1es",
+        '/s$/i' => "s",
+        '/$/' => "s",
+    ];
 
-    protected static $singular = array(
-        '/(quiz)zes$/i'             => "$1",
-        '/(matr)ices$/i'            => "$1ix",
-        '/(vert|ind)ices$/i'        => "$1ex",
-        '/^(ox)en$/i'               => "$1",
-        '/(alias)es$/i'             => "$1",
-        '/(octop|vir)i$/i'          => "$1us",
-        '/(cris|ax|test)es$/i'      => "$1is",
-        '/(shoe)s$/i'               => "$1",
-        '/(o)es$/i'                 => "$1",
-        '/(bus)es$/i'               => "$1",
-        '/([m|l])ice$/i'            => "$1ouse",
-        '/(x|ch|ss|sh)es$/i'        => "$1",
-        '/(m)ovies$/i'              => "$1ovie",
-        '/(s)eries$/i'              => "$1eries",
-        '/([^aeiouy]|qu)ies$/i'     => "$1y",
-        '/([lr])ves$/i'             => "$1f",
-        '/(tive)s$/i'               => "$1",
-        '/(hive)s$/i'               => "$1",
-        '/(li|wi|kni)ves$/i'        => "$1fe",
-        '/(shea|loa|lea|thie)ves$/i'=> "$1f",
-        '/(^analy)ses$/i'           => "$1sis",
-        '/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i'  => "$1$2sis",
-        '/([ti])a$/i'               => "$1um",
-        '/(n)ews$/i'                => "$1ews",
-        '/(h|bl)ouses$/i'           => "$1ouse",
-        '/(corpse)s$/i'             => "$1",
-        '/(us)es$/i'                => "$1",
-        '/s$/i'                     => ""
-    );
+    protected static $singular = [
+        '/(quiz)zes$/i' => "$1",
+        '/(matr)ices$/i' => "$1ix",
+        '/(vert|ind)ices$/i' => "$1ex",
+        '/^(ox)en$/i' => "$1",
+        '/(alias)es$/i' => "$1",
+        '/(octop|vir)i$/i' => "$1us",
+        '/(cris|ax|test)es$/i' => "$1is",
+        '/(shoe)s$/i' => "$1",
+        '/(o)es$/i' => "$1",
+        '/(bus)es$/i' => "$1",
+        '/([m|l])ice$/i' => "$1ouse",
+        '/(x|ch|ss|sh)es$/i' => "$1",
+        '/(m)ovies$/i' => "$1ovie",
+        '/(s)eries$/i' => "$1eries",
+        '/([^aeiouy]|qu)ies$/i' => "$1y",
+        '/([lr])ves$/i' => "$1f",
+        '/(tive)s$/i' => "$1",
+        '/(hive)s$/i' => "$1",
+        '/(li|wi|kni)ves$/i' => "$1fe",
+        '/(shea|loa|lea|thie)ves$/i' => "$1f",
+        '/(^analy)ses$/i' => "$1sis",
+        '/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i' => "$1$2sis",
+        '/([ti])a$/i' => "$1um",
+        '/(n)ews$/i' => "$1ews",
+        '/(h|bl)ouses$/i' => "$1ouse",
+        '/(corpse)s$/i' => "$1",
+        '/(us)es$/i' => "$1",
+        '/s$/i' => "",
+    ];
 
-    protected static $irregular = array(
-        'move'   => 'moves',
-        'foot'   => 'feet',
-        'goose'  => 'geese',
-        'sex'    => 'sexes',
-        'child'  => 'children',
-        'man'    => 'men',
-        'tooth'  => 'teeth',
-        'person' => 'people'
-    );
+    protected static $irregular = [
+        'move' => 'moves',
+        'foot' => 'feet',
+        'goose' => 'geese',
+        'sex' => 'sexes',
+        'child' => 'children',
+        'man' => 'men',
+        'tooth' => 'teeth',
+        'person' => 'people',
+    ];
 
-    protected static $uncountable = array(
+    protected static $uncountable = [
         'sheep',
         'fish',
         'deer',
@@ -104,14 +104,14 @@ class Inflect
         'money',
         'rice',
         'information',
-        'equipment'
-    );
+        'equipment',
+    ];
 
-    protected static $abbreviations = array(
+    protected static $abbreviations = [
         'AD', 'API',
         'B2B', 'B2C', 'C2C',
         'CEO', 'CFO', 'COO', 'CTO',
-        'DB', 'DSA',
+        'ORM', 'DSA',
         'GEO', 'GPS',
         'HTML', 'HTTP',
         'ID', 'IO', 'IP', 'IQ',
@@ -127,54 +127,26 @@ class Inflect
         'VIP',
         'WC', 'WEB', 'WAP', 'WIFI',
         'XML',
-    );
+    ];
 
-    public static function pluralize( $string )
+    public static function singularize($string)
     {
         // save some time in the case that singular and plural are the same
-        if ( in_array( strtolower( $string ), self::$uncountable ) )
-            return $string;
-
-
-        // check for irregular singular forms
-        foreach ( self::$irregular as $pattern => $result )
-        {
-            $pattern = '/' . $pattern . '$/i';
-
-            if ( preg_match( $pattern, $string ) )
-                return preg_replace( $pattern, $result, $string);
-        }
-
-        // check for matches using regular expressions
-        foreach ( self::$plural as $pattern => $result )
-        {
-            if ( preg_match( $pattern, $string ) )
-                return preg_replace( $pattern, $result, $string );
-        }
-
-        return $string;
-    }
-
-    public static function singularize( $string )
-    {
-        // save some time in the case that singular and plural are the same
-        if ( in_array( strtolower( $string ), self::$uncountable ) )
+        if (in_array(strtolower($string), self::$uncountable))
             return $string;
 
         // check for irregular plural forms
-        foreach ( self::$irregular as $result => $pattern )
-        {
+        foreach (self::$irregular as $result => $pattern) {
             $pattern = '/' . $pattern . '$/i';
 
-            if ( preg_match( $pattern, $string ) )
-                return preg_replace( $pattern, $result, $string);
+            if (preg_match($pattern, $string))
+                return preg_replace($pattern, $result, $string);
         }
 
         // check for matches using regular expressions
-        foreach ( self::$singular as $pattern => $result )
-        {
-            if ( preg_match( $pattern, $string ) )
-                return preg_replace( $pattern, $result, $string );
+        foreach (self::$singular as $pattern => $result) {
+            if (preg_match($pattern, $string))
+                return preg_replace($pattern, $result, $string);
         }
 
         return $string;
@@ -188,9 +160,33 @@ class Inflect
             return $count . " " . self::pluralize($string);
     }
 
+    public static function pluralize($string)
+    {
+        // save some time in the case that singular and plural are the same
+        if (in_array(strtolower($string), self::$uncountable))
+            return $string;
+
+
+        // check for irregular singular forms
+        foreach (self::$irregular as $pattern => $result) {
+            $pattern = '/' . $pattern . '$/i';
+
+            if (preg_match($pattern, $string))
+                return preg_replace($pattern, $result, $string);
+        }
+
+        // check for matches using regular expressions
+        foreach (self::$plural as $pattern => $result) {
+            if (preg_match($pattern, $string))
+                return preg_replace($pattern, $result, $string);
+        }
+
+        return $string;
+    }
+
     /**
-    * 将下划线分隔的单词转为驼峰，可选最后一个单词复数化
-    */
+     * 将下划线分隔的单词转为驼峰，可选最后一个单词复数化
+     */
     public static function camelize($string, $pluralize_last = false)
     {
         $words = explode('_', $string);
@@ -211,8 +207,8 @@ class Inflect
     }
 
     /**
-    * 扁平化为下划线分隔的小写单词，与驼峰化相反
-    */
+     * 扁平化为下划线分隔的小写单词，与驼峰化相反
+     */
     public static function flatten($string, $separator = '_')
     {
         $pattern = '/([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)/';

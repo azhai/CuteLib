@@ -1,9 +1,8 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute\Cache;
@@ -15,7 +14,7 @@ namespace Cute\Cache;
 class YAMLCache extends TextCache
 {
     protected $ext = '.yml';
-    
+
     public function encode($data)
     {
         if (extension_loaded('yaml')) {
@@ -25,7 +24,7 @@ class YAMLCache extends TextCache
             return $dumper->dump($data);
         }
     }
-    
+
     public function decode($data)
     {
         if (extension_loaded('yaml')) {

@@ -1,3 +1,3 @@
 <?php
-defined('APP_ROOT') or define('APP_ROOT', __DIR__);
-include APP_ROOT . '/public/index.php';
+defined('CUTE_ROOT') or define('CUTE_ROOT', __DIR__);
+include CUTE_ROOT . '/public/index.php';

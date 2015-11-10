@@ -1,9 +1,8 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute\Cache;
@@ -15,31 +14,40 @@ namespace Cute\Cache;
 class TextCache extends FileCache
 {
     protected $ext = '.txt';
-    
-    public function encode($data)
-    {
-        return $data;
-    }
-    
-    public function decode($data)
-    {
-        return $data;
-    }
-    
+
     public function readData()
     {
         $bytes = filesize($this->filename);
         if ($bytes > 0) {
-            $content = file_get_contents($this->filename);
-            $this->data = $this->decode($content);
+            try {
+                $content = file_get_contents($this->filename);
+                $this->data = $this->decode($content);
+            } catch (\Exception $e) {
+                $this->errors[] = $e->getMessage();
+            }
         }
         return $this->data;
     }
-    
+
+    public function decode($data)
+    {
+        return $data;
+    }
+
     public function writeData($part = false)
     {
-        $content = $this->encode($this->data);
-        $bytes = file_put_contents($this->filename, $content, LOCK_EX);
+        try {
+            $content = $this->encode($this->data);
+            $bytes = file_put_contents($this->filename, $content, LOCK_EX);
+        } catch (\Exception $e) {
+            $bytes = false;
+            $this->errors[] = $e->getMessage();
+        }
         return $bytes && $bytes > 0;
+    }
+
+    public function encode($data)
+    {
+        return $data;
     }
 }

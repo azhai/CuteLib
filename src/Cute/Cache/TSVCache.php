@@ -1,9 +1,8 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute\Cache;
@@ -16,22 +15,22 @@ class TSVCache extends FileCache
 {
     protected $delimiter = "\t"; //列分隔符
     protected $ext = '.csv';
-    
+
     public function __construct($name, $dir = false, $delimiter = '')
     {
         parent::__construct($name, $dir);
-        if (! empty($delimiter)) {
+        if (!empty($delimiter)) {
             $this->delimiter = $delimiter;
         }
     }
-    
+
     /**
      * @param int $at_least 最少列数
      * @return array 行列二维数组
      */
     public function readData($at_least = 0)
     {
-        $this->data = array();
+        $this->data = [];
         $fh = fopen($this->filename, 'rb');
         if ($fh === false) {
             return $this->data;
@@ -42,7 +41,7 @@ class TSVCache extends FileCache
                 break; //无效的文件指针返回NULL，碰到文件结束时返回FALSE
             }
             if (is_null($line[0])) {
-                $line = array(); //空行将被返回为一个包含有单个 null 字段的数组
+                $line = []; //空行将被返回为一个包含有单个 null 字段的数组
             }
             if ($at_least > 0 && count($line) < $at_least) {
                 continue; //列数不足
@@ -52,7 +51,7 @@ class TSVCache extends FileCache
         fclose($fh);
         return $this->data;
     }
-    
+
     public function writeData($part = false)
     {
         $size = 0;

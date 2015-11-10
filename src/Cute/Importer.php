@@ -1,29 +1,20 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute;
-
-
-if (! function_exists('trait_exists')) {
-    function trait_exists($class, $autoload)
-    {
-        return false;
-    }
-}
 
 
 /**
  * 类加载器
  *
  * USAGE:
- * defined('APP_ROOT') or define('APP_ROOT', dirname(__DIR__));
- * defined('VENDOR_ROOT') or define('VENDOR_ROOT', APP_ROOT . '/vendor');
- * require_once APP_ROOT . '/src/Cute/Importer.php';
+ * defined('CUTE_ROOT') or define('CUTE_ROOT', dirname(__DIR__));
+ * defined('VENDOR_ROOT') or define('VENDOR_ROOT', CUTE_ROOT . '/vendor');
+ * require_once CUTE_ROOT . '/src/Importer.php';
  * $importer = \Cute\Importer::getInstance();
  * $importer->addNamespace('NotORM', VENDOR_ROOT . '/notorm');
  * //OR
@@ -32,10 +23,9 @@ if (! function_exists('trait_exists')) {
  */
 final class Importer
 {
-
     private static $instance = null; //实例
-    private $classes = array(); // 已注册的class/interface/trait对应的文件
-    private $namespaces = array(); // 已注册的namespace对用的起始目录
+    private $classes = []; // 已注册的class/interface/trait对应的文件
+    private $prefixes = []; // 已注册的namespace对用的起始目录
 
     /**
      * 私有构造函数，防止在类外创建对象
@@ -43,6 +33,7 @@ final class Importer
     private function __construct()
     {
         // 加载基本的命令空间
+        $this->prefixes[__NAMESPACE__] = __DIR__;
     }
 
     /**
@@ -69,26 +60,28 @@ final class Importer
     public static function exists($class, $autoload = true)
     {
         return class_exists($class, $autoload)
-                || interface_exists($class, $autoload)
-                || trait_exists($class, $autoload);
+        || interface_exists($class, $autoload)
+        || trait_exists($class, $autoload);
     }
 
     /**
-     * 自动加载方法，用于spl_autoload_register注册
+     * If a file exists, require it from the file system.
      *
-     * @param string $class
-     *            要寻找的完整class/interface/trait名称
-     * @return bool
+     * @param string $file The file to require.
+     * @param bool $once
+     * @return bool True if the file exists, false if not.
      */
-    public function autoload($class)
+    public static function requireFile($file, $once = false)
     {
-        $class = trim($class, '\\_');
-        if (isset($this->classes[$class])) { // 在已知类中查找
-            require_once $this->classes[$class];
-            return self::exists($class, false);
+        if (empty($file) || !file_exists($file)) {
+            return false;
         }
-        $ns_check = $this->checkNamespace($class); // 在已知域名中查找
-        return ($ns_check === true);
+        if ($once) {
+            require_once $file;
+        } else{
+            require $file;
+        }
+        return true;
     }
 
     /**
@@ -99,9 +92,70 @@ final class Importer
      */
     public function register()
     {
-        return spl_autoload_register(array(
-            $this, 'autoload'
-        ));
+        return spl_autoload_register(array($this, 'loadClass'));
+    }
+
+    /**
+     * 自动加载方法，用于spl_autoload_register注册
+     *
+     * @param string $class
+     *            要寻找的完整class/interface/trait名称
+     * @return bool
+     */
+    public function loadClass($class)
+    {
+        $class = trim($class, '\\_');
+        if (isset($this->classes[$class])) { // 在已知类中查找
+            if (self::requireFile($this->classes[$class])) {
+                return self::exists($class, false);
+            }
+        }
+        $ns_check = $this->matchPrefix($class); // 在已知域名中查找
+        return ($ns_check === true);
+    }
+
+    /**
+     * Namespace/class自动加载时，寻找匹配文件的方式
+     *
+     * @param string $class
+     *            要寻找的完整class/interface/trait名称
+     * @return bool
+     */
+    public function matchPrefix($class)
+    {
+        $sub_ns = '';
+        foreach ($this->prefixes as $ns => $path) {
+            if (starts_with($class, $ns)) {
+                $sub_ns = substr($class, strlen($ns) + 1);
+                $tok = strtok($sub_ns, '\\_');
+                break;
+            }
+        }
+        if (empty($sub_ns)) {
+            return false;
+        }
+        // 先试试一步到位，用于符合PSR-0标准的库
+        $fname = $path . DIRECTORY_SEPARATOR;
+        $fname .= str_replace(['\\', '_'], DIRECTORY_SEPARATOR, $sub_ns);
+        if (self::requireFile($fname . '.php')) {
+            if (self::exists($class, false)) {
+                return true;
+            }
+        }
+        // 尝试循序渐进地检查目标对应的路径
+        while ($tok) {
+            $path .= DIRECTORY_SEPARATOR . $tok;
+            // 先检查文件，再检查目录，次序不可颠倒
+            if (self::requireFile($path . '.php')) { // 找到文件了
+                if (self::exists($class, false)) {
+                    return true;
+                }
+            }
+            if (!file_exists($path)) { // 目录不对，不要再找了
+                return false;
+            }
+            $tok = strtok('\\_');
+        }
     }
 
     /**
@@ -124,7 +178,7 @@ final class Importer
                 $this->classes[trim($class, '\\')] = $filename;
             }
         }
-        ksort($this->classes);
+        krsort($this->classes);
         return $this;
     }
 
@@ -134,74 +188,26 @@ final class Importer
      * @param string $ns
      *            包前缀
      * @param string $dir
-     *            包所在最顶层目录
+     *            包所在目录
+     * @param bool $strip
+     *            目录中不含前缀
      * @return this
      */
-    public function addNamespaceStrip($ns, $dir)
+    public function addNamespace($ns, $dir, $strip = false)
     {
         $ns = trim($ns, '\\');
         $dir = rtrim($dir, '\\/');
-        $this->namespaces[$ns] = $dir;
-        ksort($this->namespaces);
+        if ($strip === false) {
+            $sub_dir = str_replace(['\\', '_'], DIRECTORY_SEPARATOR, $ns);
+            $dir .= DIRECTORY_SEPARATOR . $sub_dir;
+        }
+        $this->prefixes[$ns] = $dir;
+        krsort($this->prefixes); //贪婪匹配需要倒序排列
         return $this;
     }
 
-    /**
-     * 同上，但$dir为包所在的父目录
-     * @return this
-     */
-    public function addNamespace($ns, $dir)
+    public function addNamespaceStrip($ns, $dir)
     {
-        $ns = trim($ns, '\\');
-        $tok = strtok($ns, '\\_');
-        $dir = rtrim($dir, '\\/') . DIRECTORY_SEPARATOR . $tok;
-        return $this->addNamespaceStrip($ns, $dir);
-    }
-
-    /**
-     * Namespace/class自动加载时，寻找匹配文件的方式
-     *
-     * @param string $class
-     *            要寻找的完整class/interface/trait名称
-     * @return bool
-     */
-    public function checkNamespace($class)
-    {
-        $tok = strtok($class, '\\_');
-        $length = strlen($tok) + 1;
-        if (isset($this->namespaces[$tok])) {
-            $path = $this->namespaces[$tok];
-        } else if (isset($this->namespaces[''])) {
-            $path = $this->namespaces[''];
-        } else {
-            return false;
-        }
-        // 先试试一步到位，用于符合PSR-0标准的库
-        $fname = $path . DIRECTORY_SEPARATOR;
-        $fname .= str_replace(array(
-            '\\',
-            '_'
-        ), DIRECTORY_SEPARATOR, substr($class, $length));
-        if (file_exists($fname . '.php')) {
-            require_once $fname . '.php';
-            if (self::exists($class, false)) {
-                return true;
-            }
-        }
-        // 尝试循序渐进地检查目标对应的路径
-        while ($tok) {
-            $path .= DIRECTORY_SEPARATOR . $tok;
-            // 先检查文件，再检查目录，次序不可颠倒
-            if (file_exists($path . '.php')) { // 找到文件了
-                require_once $path . '.php';
-                if (self::exists($class, false)) {
-                    return true;
-                }
-            }
-            if (! file_exists($path)) { // 目录不对，不要再找了
-                return false;
-            }
-            $tok = strtok('\\_');
-        }
+        return $this->addNamespace($ns, $dir, true);
     }
 }

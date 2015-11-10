@@ -1,18 +1,19 @@
 <?php
 namespace Cutest\Widget;
+
 use \PHPUnit_Framework_TestCase as TestCase;
-use \Cute\Widget\Counter;
+use \Cute\Contrib\Widget\Counter;
 
 
 class CounterTest extends TestCase
 {
     protected static $counter = null;
-    
+
     public static function setUpBeforeClass()
     {
         self::$counter = new Counter('test_val', -1);
     }
-    
+
     public static function tearDownAfterClass()
     {
         $caches = self::$counter->findCaches();

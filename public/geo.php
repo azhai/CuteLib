@@ -1,11 +1,11 @@
 <?php
-use \Cute\Base\IP;
-use \Cute\Commun\JobServer;
+use \Cute\Utility\IP;
+use \Cute\Network\JobServer;
 
 
-app()->route('/', function() {
+app()->route('/', function () {
     $job_server = JobServer::getInstance();
-    $job_server->setWorkerFile(APP_ROOT . '/protected/workers/geo_worker.php');
+    $job_server->setWorkerFile(APP_ROOT . '/workers/geo_worker.php');
     var_dump($job_server->reverse('Hello World'));
     var_dump($job_server->reverse('Hello', 'World'));
     $ipaddr = IP::getServerIP();

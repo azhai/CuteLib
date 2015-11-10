@@ -1,13 +1,14 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute\Base;
+
 use \ArrayObject;
+use \Cute\Cache\BaseCache;
 
 
 /**
@@ -15,24 +16,12 @@ use \ArrayObject;
  */
 class Storage extends ArrayObject
 {
-    const CONFIG_SECTION_NAME = 'configs';
-    
     /**
      * 构造函数，flags默认为ARRAY_AS_PROPS
      */
-    public function __construct($input = array(), $flags = ArrayObject::ARRAY_AS_PROPS)
+    public function __construct($input = null, $flags = ArrayObject::ARRAY_AS_PROPS)
     {
-        parent::__construct($input, $flags);
-    }
-
-    /**
-     * 读取配置文件
-     */
-    public static function newInstance($filename, $ext = false)
-    {
-        $filename .= empty($ext) ? '' : $ext;
-        assert(is_readable($filename));
-        return new self(include $filename);
+        parent::__construct($input ?: [], $flags);
     }
 
     /**
@@ -45,42 +34,58 @@ class Storage extends ArrayObject
     }
 
     /**
+     * 读取配置项，但不区分大小写
+     */
+    public function getItemInsensitive($name, $default = null)
+    {
+        if ($this->offsetExists($name)) {
+            return $this->getItem($name, $default);
+        }
+        $low_name = strtolower($name);
+        if ($name !== $low_name) {
+            //将对象的key都改为小写
+            $low_copy = array_change_key_case($this->getArrayCopy());
+            $this->exchangeArray($low_copy);
+            return $this->getItem($low_name, $default);
+        }
+    }
+
+    /**
      * 读取数组类配置项
      */
-    public function getArray($name, array $default = array())
+    public function getArray($name, array $default = [], $insensitive = false)
     {
-        $data = $this->getItem($name);
+        if ($insensitive) {
+            $data = $this->getItemInsensitive($name);
+        } else {
+            $data = $this->getItem($name);
+        }
         return is_array($data) ? $data : $default;
     }
 
     /**
      * 读取配置区
      */
-    public function getSection($name)
+    public function getSection($name, $insensitive = false)
     {
-        $data = $this->getArray($name, array());
+        $data = $this->getArray($name, [], $insensitive);
         return new self($data);
     }
 
     /**
      * 读取配置区，并缓存起来
      */
-    public function getSectionOnce($name)
+    public function getSectionOnce($name, $insensitive = false)
     {
-        $data = $this->getItem($name);
-        if (! ($data instanceof self)) {
+        if ($insensitive) {
+            $data = $this->getItemInsensitive($name);
+        } else {
+            $data = $this->getItem($name);
+        }
+        if (!($data instanceof self)) {
             $data = new self($data);
             $this->offsetSet($name, $data);
         }
         return $data;
-    }
-    
-    /**
-     * 获取公开配置信息
-     */
-    public function getConfig($name, $default = null)
-    {
-        $section = $this->getSectionOnce(self::CONFIG_SECTION_NAME);
-        return $section->getItem($name, $default);
     }
 }

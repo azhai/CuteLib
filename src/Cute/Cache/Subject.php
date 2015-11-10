@@ -1,12 +1,12 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute\Cache;
+
 use \SplSubject;
 use \SplObserver;
 
@@ -16,7 +16,7 @@ use \SplObserver;
  */
 class Subject implements SplSubject
 {
-    protected $observers = array();
+    protected $observers = [];
 
     public function attach(SplObserver $observer)
     {
@@ -25,7 +25,7 @@ class Subject implements SplSubject
 
     public function detach(SplObserver $observer)
     {
-        $key = array_search($observer,$this->observers, true);
+        $key = array_search($observer, $this->observers, true);
         if ($key) {
             unset($this->observers[$key]);
         }

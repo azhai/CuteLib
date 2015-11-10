@@ -22,16 +22,16 @@ class HSWriteTest extends HSFixture
         $this->assertTrue($success);
         $this->assertEquals($name, $term['name']);
     }
-    
+
     public function test02Update()
     {
         $this->insertRows();
-        self::$hs->update(array(5, 'Apache', 'apache', 1), null, 5);
+        self::$hs->update([5, 'Apache', 'apache', 1], null, 5);
         $apache = self::$hs->get(5);
         $this->assertEquals('Apache', $apache['name']);
         $this->assertEquals(1, intval($apache['term_group']));
     }
-    
+
     /**
      * @depends test02Update
      */

@@ -1,5 +1,6 @@
 <?php
 namespace Cutest;
+
 use \PHPUnit_Framework_TestCase as TestCase;
 use \Cute\Importer;
 
@@ -24,9 +25,9 @@ class ImporterTest extends TestCase
     {
         $dir = VENDOR_ROOT . '/Gregwar/Captcha';
         $this->importer->addClass($dir . '/PhraseBuilder.php',
-                '\\Gregwar\\Captcha\\PhraseBuilder');
+            '\\Gregwar\\Captcha\\PhraseBuilder');
         $this->importer->addClass($dir . '/PhraseBuilderInterface.php',
-                '\\Gregwar\\Captcha\\PhraseBuilderInterface');
+            '\\Gregwar\\Captcha\\PhraseBuilderInterface');
         $builder = new \Gregwar\Captcha\PhraseBuilder();
         $phrase = $builder->build(7);
         $this->assertEquals(strlen($phrase), 7);

@@ -10,10 +10,10 @@ class HSReadTest extends HSFixture
         parent::setUpBeforeClass();
         self::insertRows();
     }
-    
+
     public function test01Connect()
     {
-        $this->assertInstanceOf('\\Cute\\DB\\HandlerSocket', self::$hs);
+        $this->assertInstanceOf('\\Cute\\ORM\\HandlerSocket', self::$hs);
         $this->assertNotNull(self::$hs);
     }
 

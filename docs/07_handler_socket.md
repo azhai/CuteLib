@@ -5,9 +5,9 @@
 
 ```php
 //连接数据库，决定表名和字段列表
-$hs = new \Cute\DB\HandlerSocket('db_test', '127.0.0.1', 9999);
+$hs = new \Cute\ORM\HandlerSocket('127.0.0.1', 9999);
 $fields = ['id','username','score','modified_at','is_active'];
-$hs->open('t_users', $fields);
+$hs->open('db_test', 't_users', $fields);
 //插入一行数据
 $now = date('Y-m-d H:i:s');
 $row = [1,'ryan',60,$now,true];

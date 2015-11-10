@@ -1,12 +1,12 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute\View;
+
 use \Cute\View\Compiler;
 
 
@@ -16,15 +16,15 @@ use \Cute\View\Compiler;
 class Templater
 {
     public $compiler = null;
-    public $globals = array();
+    public $globals = [];
     protected $source_dir = '';
-    protected $extend_files = array();
-    protected $template_blocks = array();
+    protected $extend_files = [];
+    protected $template_blocks = [];
     protected $current_block = '';
 
     /**
      * 构造函数，设置缓存和默认模板目录
-     * @param object/null $cache 模板缓存
+     * @param object /null $cache 模板缓存
      */
     public function __construct($source_dir, $compiled_dir = false)
     {
@@ -41,7 +41,7 @@ class Templater
     public function setSourceDir($source_dir)
     {
         $this->source_dir = rtrim($source_dir, ' /\\');
-        if (! file_exists($this->source_dir)) {
+        if (!file_exists($this->source_dir)) {
             @mkdir($this->source_dir, 0777, true);
         }
     }
@@ -94,6 +94,29 @@ class Templater
     }
 
     /**
+     * 输出内容
+     * @param string $template_file 模板文件，相对路径
+     * @param array $context 模板变量数组
+     */
+    public function render($template_file, array $context = [])
+    {
+        extract($this->globals);
+        extract($context);
+        ob_start();
+        include($this->prepareFile($template_file)); // 入口模板
+        if (!empty($this->extend_files)) {
+            $layout_file = array_pop($this->extend_files);
+            foreach ($this->extend_files as $file) { // 中间继承模板
+                include($this->prepareFile($file));
+            }
+            extract($this->template_blocks);
+            include($this->prepareFile($layout_file)); // 布局模板
+        }
+        $whole_html = trim(ob_get_clean());
+        return $whole_html;
+    }
+
+    /**
      * 获得模板文件绝对路径，也可能是被编译之后的输出文件
      * @param string $template_file 模板文件，相对路径
      * @return string 模板文件，绝对路径
@@ -104,26 +127,6 @@ class Templater
             return $this->compiler->compileTpl($template_file, '', $this->globals);
         } else {
             return $this->source_dir . '/' . $template_file;
-        }
-    }
-
-    /**
-     * 输出内容
-     * @param string $template_file 模板文件，相对路径
-     * @param array $context 模板变量数组
-     */
-    public function render($template_file, array $context = array())
-    {
-        extract($this->globals);
-        extract($context);
-        include $this->prepareFile($template_file); // 入口模板
-        if (! empty($this->extend_files)) {
-            $layout_file = array_pop($this->extend_files);
-            foreach ($this->extend_files as $file) { // 中间继承模板
-                include $this->prepareFile($file);
-            }
-            extract($this->template_blocks);
-            include $this->prepareFile($layout_file); // 布局模板
         }
     }
 
@@ -145,12 +148,12 @@ class Templater
      * @param string $template_file 被包含文件，相对路径
      * @param array $context 局部变量数组
      */
-    public function includeTpl($template_file, array $context = array())
+    public function includeTpl($template_file, array $context = [])
     {
         extract($this->globals);
         extract($context);
         ob_start();
-        include $this->prepareFile($template_file);
+        include($this->prepareFile($template_file));
         $include_html = trim(ob_get_clean());
         echo $include_html;
     }

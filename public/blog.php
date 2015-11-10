@@ -1,25 +1,27 @@
 <?php
-require_once APP_ROOT . '/protected/handlers/BlogQuery.php';
-use \Cute\Handler;
+use \Cute\Web\Handler;
 
 
 class BlogHandler extends Handler
 {
-    use BlogQuery;
-    
-    public function get($title = false)
+    use \Cute\Contrib\Handler\DBHandler;
+    protected $dbkey = 'wordpress';
+    protected $modns = 'Blog\\Model';
+
+    public function get($slug = false)
     {
-        $query = $this->query('Post')->join();
-        if ($title === false) {
-            $post = $query->orderBy('post_date DESC')->setPage(5)->all();
+        $query = $this->posts->join('*', 'taxonomies.*');
+        if ($slug === false) {
+            $posts = $query->orderBy('post_date DESC')->setPage(5)->all();
+            foreach ($posts as $post) {
+                if (starts_with($post->post_content, '欢迎使用WordPress')) {
+                    break; //找到以这段话开头的Post
+                }
+            }
         } else {
-            $post = $query->get($title, 'post_name');
+            $post = $query->findBy('post_name', $slug)->get(); //根据slug找Post
         }
-        //$this->logSQL();
-        $sql_rows = $this->db->getPastSQL();
-        foreach ($sql_rows as $row) {
-            var_dump($row);
-        }
+        $this->logSQL();
         var_dump($post);
     }
 }
@@ -27,12 +29,15 @@ class BlogHandler extends Handler
 
 class BlogUserHandler extends Handler
 {
-    use BlogQuery;
-    
+    use \Cute\Contrib\Handler\DBHandler;
+    protected $dbkey = 'wordpress';
+    protected $modns = 'Blog\\Model';
+
     public function get($username)
     {
-        $query = $this->query('User')->join('user_group');
+        $query = $this->users->join('user_group');
         $user = $query->get($username, 'user_login');
+        $this->logSQL();
         var_dump($user);
     }
 }

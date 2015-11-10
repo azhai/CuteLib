@@ -1,9 +1,8 @@
 <?php
 /**
- * @name    Project CuteLib
- * @url     https://github.com/azhai/CuteLib
- * @author  Ryan Liu <azhai@126.com>
- * @copyright 2013-2015 MIT License.
+ * Project      CuteLib
+ * Author       Ryan Liu <azhai@126.com>
+ * Copyright (c) 2013 MIT License
  */
 
 namespace Cute\Utility;
@@ -33,22 +32,14 @@ class Word
     }
 
     /**
-     * 含有非ASCII字符
+     * 数字转为中文
      */
-    public static function hasNonASCII($string)
+    public static function num2char($num, $capital = false)
     {
-        return preg_match('/[^\x20-\x7f]/', $string);
+        $alts = $capital ? self::$caps : self::$chars;
+        return self::mbStrtr(strval($num), self::$digits, $alts);
     }
-    
-    /**
-     * UTF-8的汉字切分
-     */
-    public static function mbStrSplit($string)
-    {
-        $width = self::hasNonASCII($string) ? 3 : 1;
-        return str_split($string, $width);
-    }
-    
+
     /**
      * UTF-8的汉字替换
      */
@@ -58,23 +49,31 @@ class Word
         $to = self::mbStrSplit($to);
         return str_replace($from, $to, $string);
     }
-    
+
     /**
-     * 数字转为中文
+     * UTF-8的汉字切分
      */
-    public static function num2char($num, $capital = false)
+    public static function mbStrSplit($string)
     {
-        $alts = $capital ? self::$caps : self::$chars;
-        return self::mbStrtr(strval($num), self::$digits, $alts);
+        $width = self::hasNonASCII($string) ? 3 : 1;
+        return str_split($string, $width);
     }
-    
+
+    /**
+     * 含有非ASCII字符
+     */
+    public static function hasNonASCII($string)
+    {
+        return preg_match('/[^\x20-\x7f]/', $string);
+    }
+
     /**
      * 数值转为中文拼读
      */
     public static function spell($number, $capital = false)
     {
         $formatter = new \NumberFormatter('zh_CN',
-                        \NumberFormatter::SPELLOUT);
+            \NumberFormatter::SPELLOUT);
         $sentence = $formatter->format($number);
         if ($capital) {
             $sentence = self::mbStrtr($sentence, self::$chars, self::$caps);
@@ -90,16 +89,16 @@ class Word
      * @param string $subfix 变量后置符号
      * @return string 当前内容
      */
-    public static function replaceWith($content, array $context = array(),
-                                            $prefix = '', $subfix = '')
+    public static function replaceWith($content, array $context = [],
+                                       $prefix = '', $subfix = '')
     {
         if (empty($context)) {
             return $content;
         }
         if (empty($prefix) && empty($subfix)) {
-            $replacers = & $context;
+            $replacers = &$context;
         } else {
-            $replacers = array();
+            $replacers = [];
             foreach ($context as $key => & $value) {
                 $replacers[$prefix . $key . $subfix] = $value;
             }
@@ -107,7 +106,7 @@ class Word
         $content = strtr($content, $replacers);
         return $content;
     }
-    
+
     /**
      * 产生16进制随机字符串
      */
@@ -152,6 +151,17 @@ class Word
     }
 
     /**
+     * 将版本号转为整数，版本号分为三段
+     */
+    public function ver2int()
+    {
+        $version = $this->getNumbers(false);
+        $vernums = array_map('intval', explode('.', $version)); //将点号分隔的版本号转为整数
+        $vernums = array_pad($vernums, 3, 0);
+        return intval(vsprintf('%d%02d%02d', $vernums));
+    }
+
+    /**
      * 保留字符串中的数字和小数点
      */
     public function getNumbers($to_int = true)
@@ -162,16 +172,5 @@ class Word
         }
         $number = implode(current($matches));
         return $to_int ? intval($number) : $number;
-    }
-
-    /**
-     * 将版本号转为整数，版本号分为三段
-     */
-    public function ver2int()
-    {
-        $version = $this->getNumbers(false);
-        $vernums = array_map('intval', explode('.', $version)); //将点号分隔的版本号转为整数
-        $vernums = array_pad($vernums, 3, 0);
-        return intval(vsprintf('%d%02d%02d', $vernums));
     }
 }

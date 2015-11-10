@@ -13,3 +13,9 @@
 [submodule "vendor/unirest"]
 	path = vendor/unirest
 	url = https://github.com/Mashape/unirest-php.git
+[submodule "vendor/log"]
+	path = vendor/log
+	url = https://github.com/php-fig/log.git
+[submodule "vendor/predis"]
+	path = vendor/predis
+	url = https://github.com/nrk/predis.git
