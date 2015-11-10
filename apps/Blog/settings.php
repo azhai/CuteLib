@@ -43,7 +43,7 @@ return [
         'class' => '\\Cute\\View\\Templater',
         'default' => [
             'source_dir' => CUTE_ROOT . '/templates',
-        //'compiled_dir' => CUTE_ROOT . '/runtime/tmpl',
+            //'compiled_dir' => CUTE_ROOT . '/runtime/tmpl',
         ],
     ],
     'logger' => [

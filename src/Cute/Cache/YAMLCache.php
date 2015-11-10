@@ -8,6 +8,27 @@
 
 namespace Cute\Cache;
 
+
+if (extension_loaded('yaml')) {
+    function yaml_dump($data)
+    {
+        return yaml_emit($data, YAML_UTF8_ENCODING, YAML_LN_BREAK);
+    }
+} else {
+    \app()->importStrip('\\Symfony\\Component\\Yaml', VENDOR_ROOT . '/yaml');
+    
+    function yaml_dump($data)
+    {
+        return \Symfony\Component\Yaml\Yaml::dump($data);
+    }
+    
+    function yaml_parse($data)
+    {
+        return \Symfony\Component\Yaml\Yaml::parse($data);
+    }
+}
+
+
 /**
  * YAML文件缓存
  */
@@ -19,22 +40,12 @@ class YAMLCache extends FileCache
     protected function readFile()
     {
         $data = file_get_contents($this->filename);
-        if (extension_loaded('yaml')) {
-            return yaml_parse($data);
-        } else if (class_exists('sfYamlParser', true)) {
-            $parser = new \sfYamlParser();
-            return $parser->parse($data);
-        }
+        return yaml_parse($data);
     }
 
     protected function writeFile($data, $timeout = 0)
     {
-        if (extension_loaded('yaml')) {
-            $data = yaml_emit($data, YAML_UTF8_ENCODING, YAML_LN_BREAK);
-        } else if (class_exists('sfYamlDumper', true)) {
-            $dumper = new \sfYamlDumper();
-            $data = $dumper->dump($data);
-        }
+        $data = yaml_dump($data);
         $bytes = file_put_contents($this->filename, $data, LOCK_EX);
         return $bytes && $bytes > 0;
     }

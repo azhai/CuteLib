@@ -30,7 +30,9 @@ class SessionHandler extends MemoryCache implements SessionHandlerInterface
     {
         parent::__construct($memory);
         $this->timeout = intval($timeout);
-        session_set_save_handler($this);
+        if (version_compare(PHP_VERSION, '6.0.0') < 0) {
+            session_set_save_handler($this); //PHP7无法使用
+        }
         @session_start();
     }
 

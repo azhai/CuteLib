@@ -38,6 +38,11 @@ class RedisPHP extends \Predis\Client implements IMemory
         return $this->quit();
     }
 
+    public function set($key, $data, $timeout = 0)
+    {
+        return parent::set($key, $data, 'ex', $timeout);
+    }
+
     public function del($key)
     {
         return parent::del($key);
@@ -46,11 +51,6 @@ class RedisPHP extends \Predis\Client implements IMemory
     public function get($key)
     {
         return parent::get($key);
-    }
-
-    public function set($key, $data, $timeout = 0)
-    {
-        return parent::set($key, $data, $timeout);
     }
 
 }
