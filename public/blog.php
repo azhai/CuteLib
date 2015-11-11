@@ -36,7 +36,7 @@ class BlogUserHandler extends Handler
     public function get($username)
     {
         $query = $this->users->join('user_group');
-        $user = $query->get($username, 'user_login');
+        $user = $query->findBy('user_login', $username)->getOrCreate();
         $this->logSQL();
         var_dump($user);
     }

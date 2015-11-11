@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Project      CuteLib
  * Author       Ryan Liu <azhai@126.com>
@@ -7,29 +8,30 @@
 
 namespace Cute\Cache;
 
-
 /**
  * Redis缓存
  */
-class RedisDictCache extends RedisCache
+class RedisDictCache extends MemoryCache
 {
-    public function readData()
+
+    protected function doRead()
     {
-        $data = $this->redis->hGetAll($this->name);
-        if ($data !== false) {
-            $this->data = $data;
-            return $this->data;
-        }
+        return $this->memory->hGetAll($this->name);
     }
 
-    public function writeData($part = false)
+    protected function doWrite($data, $timeout = 0)
     {
-        $count = 0;
-        foreach ($this->data as $key => $value) {
-            $this->redis->hSet($this->name, $key, $value);
-            $count ++;
+        $result = null;
+        foreach ($data as $key => $value) {
+            $result = $this->memory->hSet($this->name, $key, $value);
+            if ($result === false) {
+                break;
+            }
         }
-        $this->redis->expire($this->name, $this->ttl);
-        return $count;
+        if ($timeout > 0) {
+            $this->memory->expire($this->name, $timeout);
+        }
+        return $result;
     }
+
 }

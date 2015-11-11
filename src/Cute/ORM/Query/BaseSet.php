@@ -65,9 +65,22 @@ abstract class BaseSet
     }
 
     /**
+     * 获取单个Model，不存在时创建
+     */
+    public function getOrCreate()
+    {
+        $object = $this->get(false);
+        if (! $object) {
+            $model = $this->getModel();
+            $object = new $model();
+        }
+        return $object;
+    }
+
+    /**
      * 获取单个Model对象或null
      */
-    abstract public function get($id = false, $columns = '*', $create = false);
+    abstract public function get($id = false, $columns = '*');
 
     /**
      * 返回Model的数组

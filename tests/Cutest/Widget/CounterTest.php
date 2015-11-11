@@ -1,12 +1,16 @@
 <?php
+
 namespace Cutest\Widget;
 
 use \PHPUnit_Framework_TestCase as TestCase;
 use \Cute\Contrib\Widget\Counter;
-
+use \Cute\Cache\TextCache;
+use \Cute\Cache\MemoryCache;
+use \Cute\Memory\RedisExt;
 
 class CounterTest extends TestCase
 {
+
     protected static $counter = null;
 
     public static function setUpBeforeClass()
@@ -16,15 +20,14 @@ class CounterTest extends TestCase
 
     public static function tearDownAfterClass()
     {
-        $caches = self::$counter->findCaches();
-        foreach ($caches as & $cache) {
-            $cache->removeData();
-        }
+        self::$counter->delete();
     }
 
     public function test01RedisIncrease()
     {
-        $cache = self::$counter->setCache('\\Cute\\Cache\\RedisCache');
+        $redis = new RedisExt();
+        $cache = new MemoryCache($redis, self::$counter->getName());
+        self::$counter->attach($cache);
         $val = self::$counter->increase();
         $this->assertEquals(0, $val);
         $this->assertEquals(0, $cache->readData());
@@ -32,10 +35,11 @@ class CounterTest extends TestCase
 
     public function test02TextIncrease()
     {
-        $cache = self::$counter->setCache('\\Cute\\Cache\\TextCache');
+        $cache = new TextCache(self::$counter->getName());
+        self::$counter->attach($cache);
         $val = self::$counter->increase();
         $this->assertEquals(1, $val);
         $this->assertEquals(1, $cache->readData());
     }
-}
 
+}

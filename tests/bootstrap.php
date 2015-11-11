@@ -7,9 +7,9 @@ defined('SRC_ROOT') or define('SRC_ROOT', CUTE_ROOT . '/src');
 defined('VENDOR_ROOT') or define('VENDOR_ROOT', CUTE_ROOT . '/vendor');
 require_once(SRC_ROOT . '/bootstrap.php');
 
-
 class TestApp extends \Cute\Application
 {
+
     public function initiate()
     {
         parent::initiate();
@@ -35,6 +35,7 @@ class TestApp extends \Cute\Application
         $router->expose($directory, $wildcard);
         return $this;
     }
+
 }
 
 $app = new TestApp([]);

@@ -73,7 +73,7 @@ class ResultSet extends BaseSet
     /**
      * 获取单个Model对象或null
      */
-    public function get($id = false, $columns = '*', $create = false)
+    public function get($id = false, $columns = '*')
     {
         if ($id !== false) {
             if ($pkey = $this->getPKey()) {
@@ -87,9 +87,6 @@ class ResultSet extends BaseSet
         $model = $this->getModel();
         $object = $stmt->fetchObject($model);
         $stmt->closeCursor();
-        if (! $object && $create) {
-            $object = exec_construct_array($this->getModel());
-        }
         return $object;
     }
 

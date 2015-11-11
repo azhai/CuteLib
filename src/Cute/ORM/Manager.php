@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Project      CuteLib
  * Author       Ryan Liu <azhai@126.com>
@@ -14,20 +15,37 @@ use \Cute\Cache\BaseCache;
 use \Cute\Utility\Inflect;
 use \Cute\View\Templater;
 
-
 /**
  * 数据库
  */
-class Manager extends Subject
+class Manager
 {
+
     protected $singular = false;
     protected $db = null;
     protected $tables = [];
+    protected $subject = null;
 
     public function __construct(Database& $db, $singular = false)
     {
-        $this->db = $db;
         $this->setSingular($singular);
+        $this->db = $db;
+    }
+
+    public function addCache(BaseCache $cache, $timeout = 0)
+    {
+        if (!$this->subject) {
+            $this->subject = new Subject($this->tables, $timeout);
+            $this->subject->attach($cache);
+            $this->subject->forceRead();
+        } else {
+            $this->subject->attach($cache);
+        }
+    }
+
+    public function getSubject()
+    {
+        return $this->subject;
     }
 
     public function getDB()
@@ -35,17 +53,15 @@ class Manager extends Subject
         return $this->db;
     }
 
+    public function getTableMap()
+    {
+        return $this->tables ? : [];
+    }
+
     public function setSingular($singular)
     {
         $this->singular = $singular;
         return $this;
-    }
-
-    public function setCache(BaseCache& $cache, $ttl = 0)
-    {
-        $this->attach($cache);
-        $cache->share($this->tables, false, $ttl);
-        return $cache->readData();
     }
 
     public function loadModel($table)
@@ -140,6 +156,9 @@ class Manager extends Subject
             $this->addTable($table, $model, $ns);
             $this->genModelFile($dir, $table, $model, $ns);
         }
-        $this->notify();
+        if ($this->subject) {
+            $this->subject->write();
+        }
     }
+
 }

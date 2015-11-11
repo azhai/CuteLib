@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Project      CuteLib
  * Author       Ryan Liu <azhai@126.com>
@@ -7,12 +8,12 @@
 
 namespace Cute\Cache;
 
-
 /**
  * 文件缓存
  */
 class FileCache extends BaseCache
 {
+
     protected $filename = ''; //完整文件路径
     protected $ext = '.php';
 
@@ -25,10 +26,9 @@ class FileCache extends BaseCache
             @mkdir($dir, 0755, true);
         }
         $this->filename = $dir . DIRECTORY_SEPARATOR . $name . $this->ext;
-        $this->initiate();
     }
 
-    public function initiate()
+    public function prepare()
     {
         if (!is_readable($this->filename)) {
             touch($this->filename);
@@ -38,23 +38,22 @@ class FileCache extends BaseCache
 
     public function readData()
     {
+        $this->prepare();
         $bytes = filesize($this->filename);
         if ($bytes > 0) {
-            $this->data = (include $this->filename);
+            return $this->readFile();
         }
-        return $this->data;
     }
 
-    public function writeData($part = false)
+    public function writeData($data, $timeout = 0)
     {
-        $content = "<?php \nreturn " . var_export($this->data, true) . ";\n";
         try {
-            $bytes = file_put_contents($this->filename, $content);
+            $this->prepare();
+            $succ = $this->writeFile($data, $timeout);
         } catch (\Exception $e) {
-            $bytes = false;
             $this->errors[] = $e->getMessage();
         }
-        return $bytes && $bytes > 0;
+        return $succ;
     }
 
     public function removeData()
@@ -63,4 +62,17 @@ class FileCache extends BaseCache
             return unlink($this->filename);
         }
     }
+
+    protected function readFile()
+    {
+        return (include $this->filename);
+    }
+
+    protected function writeFile($data, $timeout = 0)
+    {
+        $content = "<?php \nreturn " . var_export($data, true) . ";\n";
+        $bytes = file_put_contents($this->filename, $content);
+        return $bytes && $bytes > 0;
+    }
+
 }

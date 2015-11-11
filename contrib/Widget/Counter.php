@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Project      CuteLib
  * Author       Ryan Liu <azhai@126.com>
@@ -9,41 +10,34 @@ namespace Cute\Contrib\Widget;
 
 use \Cute\Cache\Subject;
 
-
 /**
  * 全局计数器
  */
 class Counter extends Subject
 {
+
     protected $name = '';
-    protected $value = 0;
     protected $maxium = 0;
 
     /**
      * 构造函数
      */
-    public function __construct($name, $value = 0, $maxium = 0)
+    public function __construct($name, $data = 0, $maxium = 0)
     {
         $this->name = $name;
-        $this->value = intval($value);
         $this->maxium = intval($maxium);
+        $this->set($data);
     }
 
-    /**
-     * 设置缓存，Redis优先
-     */
-    public function setCache($class = '\\Cute\\Cache\\RedisCache')
+    public function set($data)
     {
-        $cache = new $class($this->name);
-        $cache->share($this->value, 'intval');
-        $cache->initiate()->readData();
-        $this->attach($cache);
-        return $cache;
+        $data = intval($data);
+        return parent::set($data);
     }
 
-    public function findCaches()
+    public function getName()
     {
-        return $this->observers;
+        return $this->name;
     }
 
     /**
@@ -51,11 +45,12 @@ class Counter extends Subject
      */
     public function increase($step = 1)
     {
-        $this->value += $step;
+        $this->data += $step;
         if ($this->maxium > 0) {
-            $this->value = $this->value % $this->maxium;
+            $this->data = $this->data % $this->maxium;
         }
-        $this->notify(); //写入缓存
-        return $this->value;
+        $this->write(); //写入缓存
+        return $this->data;
     }
+
 }

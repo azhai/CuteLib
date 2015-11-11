@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Project      CuteLib
  * Author       Ryan Liu <azhai@126.com>
@@ -7,52 +8,55 @@
 
 namespace Cute\Cache;
 
-use \SplSubject;
 use \SplObserver;
-
+use \SplSubject;
+use \Cute\Cache\Subject;
 
 /**
  * 缓存客户端
  */
 abstract class BaseCache implements SplObserver
 {
-    protected $data = null;
-    protected $ttl = 0; //失效时间
-    protected $coerce = false;
+
     protected $errors = [];
 
-    public function setExpire($ttl)
+    public function update(SplSubject $subject)
     {
-        $this->ttl = intval($ttl);
-        return $this;
-    }
-
-    public function share(&$data, $coerce = false, $ttl = 0)
-    {
-        $this->data = &$data;
-        $this->coerce = $coerce;
-        $this->ttl = intval($ttl);
-        return $this;
-    }
-
-    public function update(SplSubject $subject = null)
-    {
-        if ($this->coerce) {
-            $this->data = exec_function_array($this->coerce, [$this->data]);
+        if (func_num_args() >= 2) {
+            $action = func_get_arg(1);
+        } else {
+            $action = Subject::OP_READ;
         }
-        $this->writeData();
+        switch ($action) {
+            case Subject::OP_READ:
+                $data = $subject->get();
+                if (is_null($data)) {
+                    $subject->set($this->readData());
+                }
+                break;
+            case Subject::OP_WRITE:
+                $data = $subject->get();
+                $this->writeData($data, $subject->ttl());
+                break;
+            case Subject::OP_REMOVE:
+                $this->removeData();
+                break;
+        }
     }
-    
+
     public function isSuccessful()
     {
         return empty($this->errors);
     }
 
-    abstract public function initiate();
-
-    abstract public function writeData($part = false);
+    public function prepare()
+    {
+        
+    }
 
     abstract public function readData();
+
+    abstract public function writeData($data, $timeout = 0);
 
     abstract public function removeData();
 }

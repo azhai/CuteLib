@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Project      CuteLib
  * Author       Ryan Liu <azhai@126.com>
@@ -11,12 +12,12 @@ use \Cute\Application;
 use \Cute\Web\Router;
 use \Cute\Web\SessionHandler;
 
-
 /**
  * 网站
  */
 class Site extends Application
 {
+
     const HOSTS_SECTION = 'hosts';
 
     /**
@@ -43,8 +44,9 @@ class Site extends Application
         $this->install('\\Cute\\Web\\Input', [
             'getClientIP', 'input' => 'getInstance',
         ]);
-        $sess_handler = new SessionHandler();
-        if ($sess_handler->isSuccessful()) {
+        $memory = $this->load('redis');
+        $sess_handler = new SessionHandler($memory);
+        if ($sess_handler->prepare()) {
             $this->installRef($sess_handler, ['setExpire', 'share', 'update']);
         }
         return $this;
@@ -86,4 +88,5 @@ class Site extends Application
         $section = $this->storage->getSectionOnce(self::HOSTS_SECTION);
         return $section->getItemInsensitive($domain, '');
     }
+
 }

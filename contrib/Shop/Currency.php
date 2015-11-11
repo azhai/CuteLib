@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Project      CuteLib
  * Author       Ryan Liu <azhai@126.com>
@@ -11,12 +12,12 @@ namespace Cute\Contrib\Shop;
 
 use \Cute\Cache\TSVCache;
 
-
 /**
  * 货币
  */
 class Currency
 {
+
     protected static $instances = [];
     protected $code;
     protected $rate = 0.0;
@@ -26,8 +27,7 @@ class Currency
     /**
      * Create a new Currency object
      */
-    protected function __construct($code, $rate = 100.0,
-                                   $numeric = '', $decimals = 2)
+    protected function __construct($code, $rate = 100.0, $numeric = '', $decimals = 2)
     {
         $this->code = $code;
         $this->rate = floatval($rate);
@@ -59,10 +59,8 @@ class Currency
      */
     public static function initAllCurrencies()
     {
-        $data = [];
         $cache = new TSVCache('currencies', CUTE_ROOT . '/misc');
-        $cache->share($data);
-        $cache->initiate()->readData();
+        $data = $cache->readData() ? : [];
         foreach ($data as $row) {
             @list($code, $title, $num, $dec, $rate) = $row;
             self::$instances[$code] = new self($code, $rate, $num, $dec);
@@ -111,4 +109,5 @@ class Currency
     {
         return $this->decimals;
     }
+
 }
